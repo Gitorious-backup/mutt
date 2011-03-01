@@ -1,3 +1,5 @@
+raise "You need to run this with JRuby" unless RUBY_PLATFORM == "java"
+
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
 require "servlet-api-2.5"
 require "org.eclipse.jgit-0.9.3"
@@ -18,6 +20,7 @@ java_import "org.mortbay.jetty.servlet.ServletHolder"
 java_import "org.eclipse.jgit.lib.RepositoryCache"
 java_import "org.eclipse.jgit.util.FS"
 java_import "org.eclipse.jgit.errors.RepositoryNotFoundException"
+
 
 # Wrap the Gitorious configuration in a class
 class GitoriousConfig
