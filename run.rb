@@ -123,8 +123,10 @@ class GServletHolder < ServletHolder
   end
 end
 
+jetty_port = (ENV["JETTY_PORT"] || "8080").to_i
+
 # Embedding Jetty
-server = Server.new(8080)
+server = Server.new(jetty_port)
 root = Context.new(server, "/", Context::SESSIONS)
 holder = GServletHolder.new(GitoriousServlet.new)
 
