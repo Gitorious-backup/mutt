@@ -123,7 +123,7 @@ class GServletHolder < ServletHolder
   end
 end
 
-PIDFILE = "git_http.pid"
+PIDFILE = File.join(File.dirname(__FILE__), "pids", "git_http.pid")
 File.open(PIDFILE,"w") {|f| f.write(Process.pid.to_s)}
 
 jetty_port = (ENV["JETTY_PORT"] || "8080").to_i
