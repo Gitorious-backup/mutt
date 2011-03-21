@@ -1,2 +1,3 @@
 resolver.log
 pids/*.pid
+git_http.out
