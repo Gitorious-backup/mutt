@@ -17,10 +17,12 @@ java_import "javax.servlet.http.HttpServletResponse"
 java_import "org.mortbay.jetty.Server"
 java_import "org.mortbay.jetty.servlet.Context"
 java_import "org.mortbay.jetty.servlet.ServletHolder"
+java_import "org.mortbay.jetty.security.SecurityHandler"
 java_import "org.eclipse.jgit.lib.RepositoryCache"
 java_import "org.eclipse.jgit.util.FS"
 java_import "org.eclipse.jgit.errors.RepositoryNotFoundException"
-
+java_import "org.eclipse.jgit.transport.ReceivePack"
+java_import "org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException"
 
 # Wrap the Gitorious configuration in a class
 class GitoriousConfig
@@ -94,12 +96,21 @@ class GitoriousResolver
   end
 end
 
+class GitoriousReceivePackFactory
+  def create(request, repository)
+    puts "Get remote user #{request.remote_user.inspect}"
+    raise ServiceNotAuthorizedException.new if request.remote_user.nil?
+    ReceivePack.new(repository)
+  end
+end
+
 # Our servlet, based on JGit's GitServlet
 # Attaches a custom resolver, otherwise all normal
 class GitoriousServlet < GitServlet
   def init(config)
     resolver = GitoriousResolver.new
     setRepositoryResolver(resolver)
+    setReceivePackFactory(GitoriousReceivePackFactory.new)
     super
   end
 end
@@ -123,8 +134,32 @@ class GServletHolder < ServletHolder
   end
 end
 
-PIDFILE = File.join(File.dirname(__FILE__), "pids", "git_http.pid")
-File.open(PIDFILE,"w") {|f| f.write(Process.pid.to_s)}
+class GitoriousBasicAuthHandler < SecurityHandler
+  def handle(target, request, response, dispatch)
+    puts "GIT WANNA #{target.inspect}"
+    authenticate(request, response)
+
+    if handler
+      handler.handle target, request, response, dispatch
+    end
+  end
+
+  def authenticate(request, response)
+    credentials = request.getHeader(org.mortbay.jetty.HttpHeaders::AUTHORIZATION)
+    puts "Credentials, baby: #{credentials.inspect}"
+
+    if !credentials.nil?
+      #response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+      #request.handled = true
+      #return
+
+      request.auth_type = org.mortbay.jetty.security.Constraint::__BASIC_AUTH
+      principal = "DaMan"
+      def principal.name; "Yo"; end
+      request.user_principal = principal
+    end
+  end
+end
 
 jetty_port = (ENV["JETTY_PORT"] || "8080").to_i
 
@@ -135,16 +170,20 @@ holder = GServletHolder.new(GitoriousServlet.new)
 
 # Attach GitoriousServlet to anything
 root.add_servlet(holder, "/*")
+root.security_handler = GitoriousBasicAuthHandler.new
 
 server.start
 
-trap ("SIGINT") {
-  puts "Cleaning up"
-  File.unlink(PIDFILE)
-  exit!
-}
-trap ("SIGTERM") {
-  puts "Cleaning up"
-  File.unlink(PIDFILE)
-  exit!
-}
+PIDFILE = File.join(File.dirname(__FILE__), "pids", "git_http.pid")
+File.open(PIDFILE,"w") {|f| f.write(Process.pid.to_s)}
+
+#trap ("SIGINT") {
+#  puts "Cleaning up"
+#  File.unlink(PIDFILE)
+#  exit!
+#}
+#trap ("SIGTERM") {
+#  puts "Cleaning up"
+#  File.unlink(PIDFILE)
+#  exit!
+#}
