@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 raise "You need to run this with JRuby" unless RUBY_PLATFORM == "java"
 
 $:.unshift(File.join(File.dirname(__FILE__), "lib"))
@@ -98,9 +99,22 @@ end
 
 class GitoriousReceivePackFactory
   def create(request, repository)
-    puts "Get remote user #{request.remote_user.inspect}"
-    raise ServiceNotAuthorizedException.new if request.remote_user.nil?
+    user = request.remote_user
+
+    raise ServiceNotAuthorizedException.new if !authenticated?(user)
+    raise ServiceNotEnabledException.new if !authorized?(request.remote_user, repository)
+
     ReceivePack.new(repository)
+  end
+
+  def authenticated?(user)
+    puts "User authenticated? #{user} #{!user.nil?}"
+    !user.nil?
+  end
+
+  def authorized?(user, repository)
+    # Sjekke med Gitorious om brukeren har tilgang på repo
+    true
   end
 end
 
@@ -136,28 +150,61 @@ end
 
 class GitoriousBasicAuthHandler < SecurityHandler
   def handle(target, request, response, dispatch)
-    puts "GIT WANNA #{target.inspect}"
+    puts "[handle] #{request.method} #{target}?#{request.query_string}"
+
+    request.header_names.each do |header|
+      puts "#{header}: #{request.getHeader(header)}"
+    end
+
+    puts ""
+
     authenticate(request, response)
 
     if handler
-      handler.handle target, request, response, dispatch
+      begin
+        handler.handle target, request, response, dispatch
+      rescue
+        puts "[handle] failed for some reason"
+      end
     end
   end
 
   def authenticate(request, response)
-    credentials = request.getHeader(org.mortbay.jetty.HttpHeaders::AUTHORIZATION)
-    puts "Credentials, baby: #{credentials.inspect}"
+    credentials = extract_credentials(request)
 
-    if !credentials.nil?
-      #response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-      #request.handled = true
-      #return
+    if credentials.nil?
+      puts "[credentials] nil"
+      #request.auth_type = org.mortbay.jetty.security.Constraint::__BASIC_AUTH
+      response.set_header("WWW-Authenticate", "Basic realm=\"Gitorious\"")
+    else
+      puts "[credentials] #{credentials.join('/')} (#{credentials[0] == "christian"})"
 
-      request.auth_type = org.mortbay.jetty.security.Constraint::__BASIC_AUTH
-      principal = "DaMan"
-      def principal.name; "Yo"; end
-      request.user_principal = principal
+      if credentials[0] == "christian"
+        request.auth_type = org.mortbay.jetty.security.Constraint::__BASIC_AUTH
+        request.user_principal = Principal.new(credentials[0])
+      end
     end
+  end
+
+  def extract_credentials(request)
+    credentials = request.getHeader(org.mortbay.jetty.HttpHeaders::AUTHORIZATION)
+    return nil if credentials.nil?
+
+    credentials[6..-1].unpack("m").first.split(":")
+  end
+end
+
+class Principal
+  def initialize(name)
+    @name = name
+  end
+
+  def to_s
+    @name
+  end
+
+  def name
+    @name
   end
 end
 
