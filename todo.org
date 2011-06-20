@@ -1,0 +1,7 @@
+* Error handling [0/4]
+** TODO No JRuby
+** TODO No Gitorious running
+** TODO No GITORIOUS_ROOT
+** TODO (No JETTY_PORT)
+**
+* Force pushing should be respected

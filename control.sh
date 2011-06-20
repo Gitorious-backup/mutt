@@ -4,7 +4,7 @@
 
 PIDFILE=pids/git_http.pid
 if [ "$JRUBY" = "" ]; then JRUBY="/usr/bin/env jruby"; fi
-SCRIPT="$JRUBY git_http_servlet.rb"
+SCRIPT="$JRUBY -Ilib:vendor git_http_servlet.rb"
 
 if [ "$JRUBY" = "" ]; then
     echo "Please set $JRUBY to point to your jruby executable to run this script"
