@@ -19,10 +19,12 @@ require "yaml"
 
 module Mutt
   class GitoriousConfig
-    attr_reader :configuration
+    attr_reader :configuration, :config_path, :environment
 
     def initialize(file, environment = "production")
       raise Errno::ENOENT.new("gitorious.yml not found") unless File.file?(file)
+      @environment = environment
+      @config_path = File.dirname(file)
       @configuration = YAML::load_file(file)[environment]
     end
 
@@ -36,6 +38,16 @@ module Mutt
 
     def repo_root
       @repo_root ||= configuration["repository_base_path"]
+    end
+
+    def db_config
+      if !defined?(@db_config)
+        yaml = YAML::load_file(File.join(config_path, "database.yml"))
+        @db_config = yaml[environment]
+        @db_config["adapter"] = "jdbcmysql"
+      end
+
+      @db_config
     end
   end
 end

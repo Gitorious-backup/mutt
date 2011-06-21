@@ -1,7 +1,10 @@
-source "http://rubygems.org"
+source 'http://rubygems.org'
 
-gem "rake"
+gem 'rake'
+gem 'jdbc-mysql', '~> 5.1.13'
+gem 'ActiveRecord-JDBC'
+gem 'activerecord'
 
 group :test do
-  gem "minitest", :require => "minitest/autorun"
+  gem 'minitest', :require => 'minitest/autorun'
 end

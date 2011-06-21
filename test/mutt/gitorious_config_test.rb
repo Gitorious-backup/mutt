@@ -20,15 +20,34 @@ require "mutt/gitorious_config"
 
 module YAML
   def self.load_file(path)
-    {"production" => {
-        "gitorious_client_host" => "gitorious.here",
-        "gitorious_client_port" => "3000",
-        "repository_base_path" => "/var/www/gitorious/repositories"
-      },
-      "development" => {
-        "gitorious_client_host" => "gitorious.there"
+    if path =~ /database\.yml/
+      {"production" => {
+          "adapter" => "mysql",
+          "database" => "gitorious",
+          "username" => "gitorious",
+          "password" => "pass",
+          "host" => "localhost",
+          "encoding" => "utf8"
+        },
+        "test" => {
+          "adapter" => "mysql",
+          "database" => "gitorious_test",
+          "username" => "gitorious",
+          "password" => "pass",
+          "host" => "localhost",
+          "encoding" => "utf8"
+        }}
+    else
+      {"production" => {
+          "gitorious_client_host" => "gitorious.here",
+          "gitorious_client_port" => "3000",
+          "repository_base_path" => "/var/www/gitorious/repositories"
+        },
+        "development" => {
+          "gitorious_client_host" => "gitorious.there"
+        }
       }
-    }
+    end
   end
 end
 
@@ -59,5 +78,18 @@ class GitoriousConfigTest < MiniTest::Unit::TestCase
       config = Mutt::GitoriousConfig.new(__FILE__ + ".invalid")
     end
   end
-end
 
+  def test_should_get_database_configuration
+    db_config = @config.db_config
+
+    assert_equal "jdbcmysql", db_config["adapter"]
+    assert_equal "gitorious", db_config["database"]
+  end
+
+  def test_should_get_environment_specific_database_configuration
+    db_config = Mutt::GitoriousConfig.new(__FILE__, "production").db_config
+    db_config2 = Mutt::GitoriousConfig.new(__FILE__, "test").db_config
+
+    refute_equal db_config["database"], db_config2["database"]
+  end
+end

@@ -10,3 +10,9 @@ HOW?
 * Set the environment variable GITORIOUS_ROOT to point to your Gitorious installation
 * Run it: `ruby run.rb`
 * Try cloning something: `git clone http://localhost:8080/project/repository.git`
+
+TESTS
+=====
+
+bundle install
+GITORIOUS_ROOT=/path/to/gitorious rake

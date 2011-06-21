@@ -1,6 +1,11 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    ActiveRecord-JDBC (0.5)
+    activerecord (2.3.8)
+      activesupport (= 2.3.8)
+    activesupport (2.3.8)
+    jdbc-mysql (5.1.13)
     minitest (2.3.0)
     rake (0.9.2)
 
@@ -9,5 +14,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ActiveRecord-JDBC
+  activerecord
+  jdbc-mysql (~> 5.1.13)
   minitest
   rake

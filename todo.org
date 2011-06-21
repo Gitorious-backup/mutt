@@ -5,3 +5,8 @@
 ** TODO (No JETTY_PORT)
 **
 * Force pushing should be respected
+* TODO Don't authenticate non-push activity
+* Support the Gitorious hooks [0/3]
+** TODO pre-receive: checks force-push etc
+** TODO post-receive: pushes messages on the queue
+** TODO post-update: this helps users with prehistoric Git clients. May not be required
