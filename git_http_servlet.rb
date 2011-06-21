@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-raise 'You need to run this with JRuby' unless RUBY_PLATFORM == 'java'
+# coding: utf-8
+raise 'You need to run this with JRuby' unless defined?(JRUBY_VERSION)
 
 require 'servlet-api-2.5'
 require 'org.eclipse.jgit-0.9.3'
@@ -19,12 +19,6 @@ require 'mutt/basic_auth_handler'
 require 'mutt/gitorious_authenticator'
 
 java_import 'org.eclipse.jgit.http.server.GitServlet'
-java_import 'org.mortbay.jetty.handler.AbstractHandler'
-java_import 'javax.servlet.http.HttpServletResponse'
-java_import 'org.mortbay.jetty.Server'
-java_import 'org.mortbay.jetty.servlet.Context'
-java_import 'org.mortbay.jetty.servlet.ServletHolder'
-
 java_import 'org.eclipse.jgit.transport.ReceivePack'
 java_import 'org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException'
 
@@ -74,10 +68,10 @@ end
 jetty_port = (ENV['JETTY_PORT'] || '8080').to_i
 
 # Embedding Jetty
-server = Server.new(jetty_port)
-root = Context.new(server, '/', Context::SESSIONS)
+server = org.mortbay.jetty.Server.new(jetty_port)
+root = org.mortbay.jetty.servlet.Context.new(server, '/', org.mortbay.jetty.servlet.Context::SESSIONS)
 servlet = GitoriousServlet.new
-holder = ServletHolder.new(servlet)
+holder = org.mortbay.jetty.servlet.ServletHolder.new(servlet)
 
 # Attach GitoriousServlet to anything
 root.add_servlet(holder, '/*')
@@ -92,6 +86,7 @@ server.start
 
 PIDFILE = File.join(File.dirname(__FILE__), 'pids', 'git_http.pid')
 File.open(PIDFILE,'w') {|f| f.write(Process.pid.to_s)}
+
 
 #trap ('SIGINT') {
 #  puts 'Cleaning up'
