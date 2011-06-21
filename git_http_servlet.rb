@@ -9,10 +9,14 @@ require 'jetty-6.1.26'
 require 'java'
 require 'logger'
 
+require "rubygems"
+require "bundler/setup"
+
 require 'mutt/gitorious_config'
 require 'mutt/gitorious_service'
 require 'mutt/gitorious_resolver'
 require 'mutt/basic_auth_handler'
+require 'mutt/gitorious_authenticator'
 
 java_import 'org.eclipse.jgit.http.server.GitServlet'
 java_import 'org.mortbay.jetty.handler.AbstractHandler'
@@ -74,7 +78,12 @@ holder = ServletHolder.new(GitoriousServlet.new)
 
 # Attach GitoriousServlet to anything
 root.add_servlet(holder, '/*')
-root.security_handler = Mutt::BasicAuth::Handler.new(StaticAuthenticator.new)
+
+# TODO: Remove duplication
+path = File.join(ENV['GITORIOUS_ROOT'], 'config', 'gitorious.yml')
+config = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
+
+root.security_handler = Mutt::BasicAuth::Handler.new(Mutt::GitoriousAuthenticator.new(config.db_config))
 
 server.start
 
