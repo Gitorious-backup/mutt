@@ -39,12 +39,12 @@ class GitoriousReceivePackFactory
   end
 
   def authenticated?(user)
-    puts "User authenticated? #{user} #{!user.nil?}"
     !user.nil?
   end
 
   def authorized?(user, repository)
-    # Sjekke med Gitorious om brukeren har tilgang på repo
+    # Ask the Gitorious server if user should be granted access
+    # This is basically a matter of querying /<repo_url>/writable_by?username=<username>
     true
   end
 end
@@ -52,11 +52,13 @@ end
 # Our servlet, based on JGit's GitServlet
 # Attaches a custom resolver, otherwise all normal
 class GitoriousServlet < GitServlet
+  attr_reader :gitorious_configuration
+  
   def init(servlet_config)
     path = File.join(ENV['GITORIOUS_ROOT'], 'config', 'gitorious.yml')
-    config = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
-    service = Mutt::GitoriousService.new(config.host, config.port)
-    resolver = Mutt::GitoriousResolver.new(service, config.repo_root)
+    @gitorious_configuration = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
+    service = Mutt::GitoriousService.new(gitorious_configuration.host, gitorious_configuration.port)
+    resolver = Mutt::GitoriousResolver.new(service, gitorious_configuration.repo_root)
     setRepositoryResolver(resolver)
     setReceivePackFactory(GitoriousReceivePackFactory.new)
     super
@@ -74,7 +76,8 @@ jetty_port = (ENV['JETTY_PORT'] || '8080').to_i
 # Embedding Jetty
 server = Server.new(jetty_port)
 root = Context.new(server, '/', Context::SESSIONS)
-holder = ServletHolder.new(GitoriousServlet.new)
+servlet = GitoriousServlet.new
+holder = ServletHolder.new(servlet)
 
 # Attach GitoriousServlet to anything
 root.add_servlet(holder, '/*')
