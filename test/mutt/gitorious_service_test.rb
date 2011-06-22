@@ -20,18 +20,6 @@ require 'mutt/gitorious_service'
 require 'mutt/user'
 
 class GitoriousServiceTest < MiniTest::Spec
-  class Repository
-    def directory
-      Directory.new
-    end
-  end
-
-  class Directory
-    def absolute_path
-      '/local/filesystem/path.git'
-    end
-  end
-
   setup do
     @service = Mutt::GitoriousService.new('gitorious.here', '80')
   end
@@ -88,7 +76,7 @@ class GitoriousServiceTest < MiniTest::Spec
           Mutt::Test::Response.new('false')
         end
       end
-      @repository = Repository.new
+      @repository = Repository.new('/local/filesystem/path.git')
       @service.cache_url('/path/to/repo.git', '/local/filesystem/path.git')
     end
 

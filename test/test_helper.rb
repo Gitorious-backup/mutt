@@ -45,6 +45,24 @@ module Mutt
         headers[name] = value
       end
     end
+
+    class Repository
+      def initialize(path)
+        @path = path
+      end
+
+      def directory
+        Directory.new(@path)
+      end
+    end
+
+    class Directory
+      attr_reader :absolute_path
+
+      def initialize(path)
+        @absolute_path = path
+      end
+    end
   end
 end
 
