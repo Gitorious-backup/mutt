@@ -18,11 +18,12 @@ module Mutt
 
     class Request
       attr_accessor :auth_type, :user_principal
-      attr_reader :auth_string, :remote_user
+      attr_reader :auth_string, :remote_user, :query_string
 
       def initialize(options = {})
         @auth_string = options[:auth_string]
         @remote_user = options[:remote_user]
+        @query_string = options[:query_string]
       end
 
       def get_header(name)
@@ -62,6 +63,19 @@ module Mutt
 
       def initialize(path)
         @absolute_path = path
+      end
+    end
+
+    class FakeAuthenticator
+      attr_reader :valid_username, :valid_password
+      
+      def initialize(valid_username, valid_password)
+        @valid_username = valid_username
+        @valid_password = valid_password
+      end
+      
+      def authenticate(username, password)
+        valid_username == username && valid_password == password
       end
     end
   end

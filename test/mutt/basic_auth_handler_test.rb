@@ -18,22 +18,9 @@
 require 'test_helper'
 require 'mutt/basic_auth_handler'
 
-class FakeAuthenticator
-  attr_reader :valid_username, :valid_password
-  
-  def initialize(valid_username, valid_password)
-    @valid_username = valid_username
-    @valid_password = valid_password
-  end
-  
-  def authenticate(username, password)
-    valid_username == username && valid_password == password
-  end
-end
-
 class BasicAuthHandlerTest < MiniTest::Unit::TestCase
   def setup
-    @authenticator = FakeAuthenticator.new('bill', 'bob')
+    @authenticator = Mutt::Test::FakeAuthenticator.new('bill', 'bob')
     @handler = Mutt::BasicAuth::Handler.new(@authenticator, "Gitorious")
   end
 

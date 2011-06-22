@@ -5,7 +5,7 @@
 ** TODO (No JETTY_PORT)
 **
 * TODO Force pushing should be respected
-* TODO Don't authenticate non-push activity
+* DONE Don't authenticate non-push activity
 * TODO Support the Gitorious hooks [0/3]
 ** TODO pre-receive: checks force-push etc
 ** TODO post-receive: pushes messages on the queue
