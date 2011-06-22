@@ -16,7 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "test_helper"
-require "mutt/gitorious_receive_pack_factory"
+require "mutt/gitorious/receive_pack_factory"
 
 class GitoriousReceivePackFactoryTest < MiniTest::Spec
   setup do
@@ -27,7 +27,7 @@ class GitoriousReceivePackFactoryTest < MiniTest::Spec
 
   should "raise not authorized for anonymous user" do
     request = Mutt::Test::Request.new
-    factory = Mutt::GitoriousReceivePackFactory.new(nil, @router)
+    factory = Mutt::Gitorious::ReceivePackFactory.new(nil, @router)
 
     assert_raises ServiceNotAuthorizedException do
       factory.create(request, @repository)
@@ -38,7 +38,7 @@ class GitoriousReceivePackFactoryTest < MiniTest::Spec
     service = Object.new
     def service.push_allowed_by?(repo, user); false; end
     request = Mutt::Test::Request.new(:remote_user => "bill")
-    factory = Mutt::GitoriousReceivePackFactory.new(service, @router)
+    factory = Mutt::Gitorious::ReceivePackFactory.new(service, @router)
 
     assert_raises ServiceNotAuthorizedException do
       factory.create(request, @repository)
@@ -49,7 +49,7 @@ class GitoriousReceivePackFactoryTest < MiniTest::Spec
     service = Object.new
     def service.push_allowed_by?(repo, user); true; end
     request = Mutt::Test::Request.new(:remote_user => "bill")
-    factory = Mutt::GitoriousReceivePackFactory.new(service, @router)
+    factory = Mutt::Gitorious::ReceivePackFactory.new(service, @router)
 
     begin
       factory.create(request, @repository)

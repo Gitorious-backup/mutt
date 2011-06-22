@@ -16,8 +16,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "test_helper"
-require "mutt/gitorious_repository_router"
-require "mutt/gitorious_service"
+require "mutt/gitorious/repository_router"
+require "mutt/gitorious/service"
 
 module Mutt
   class FakeService
@@ -33,7 +33,7 @@ class GitoriousRepositoryRouterTest < MiniTest::Spec
   def setup
     repo_root = "/tmp/repositories"
     @service = Mutt::FakeService.new
-    @router = Mutt::GitoriousRepositoryRouter.new(@service, repo_root)
+    @router = Mutt::Gitorious::RepositoryRouter.new(@service, repo_root)
   end
 
   context "resolving urls" do

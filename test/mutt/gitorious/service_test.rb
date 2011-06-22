@@ -16,12 +16,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "test_helper"
-require "mutt/gitorious_service"
+require "mutt/gitorious/service"
 require "mutt/user"
 
 class GitoriousServiceTest < MiniTest::Spec
   setup do
-    @service = Mutt::GitoriousService.new("gitorious.here", "80")
+    @service = Mutt::Gitorious::Service.new("gitorious.here", "80")
   end
 
   context "resolving repository paths" do
@@ -41,7 +41,7 @@ class GitoriousServiceTest < MiniTest::Spec
         res
       end
 
-      assert_raises Mutt::GitoriousService::ConnectionRefused do
+      assert_raises Mutt::Gitorious::Service::ConnectionRefused do
         @service.resolve_url("/gitorious/mainline.git")
       end
     end

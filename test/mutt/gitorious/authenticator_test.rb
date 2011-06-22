@@ -16,23 +16,22 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "test_helper"
-require "mutt/gitorious_resolver"
+require "mutt/gitorious/authenticator"
 
-class GitoriousResolverTest < MiniTest::Spec
+class GitoriousAuthenticatorTest < MiniTest::Spec
   def setup
-    @router = Object.new
-    @resolver = Mutt::GitoriousResolver.new(@router)
+    @authenticator = Mutt::Gitorious::Authenticator.new(db_config)
   end
 
-  should "rescue and throw on service error" do
-    def @router.resolve_url(url)
-      raise Mutt::GitoriousService::ServiceError.new("gitorious.here", "80")
-    end
+  should "authenticate valid user" do
+    assert @authenticator.authenticate("johan", "test")
+  end
 
-    capture_stderr do
-      assert_raises RepositoryNotFoundException do
-        @resolver.open(nil, nil)
-      end
-    end
+  should "not authenticate invalid user" do
+    refute @authenticator.authenticate("johan", "test!!!")
+  end
+
+  should "not authenticate non existent user" do
+    refute @authenticator.authenticate("johanjohan", "test!!!")
   end
 end

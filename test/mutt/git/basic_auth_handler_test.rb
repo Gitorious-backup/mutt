@@ -16,13 +16,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "test_helper"
-require "mutt/git_basic_auth_handler"
+require "mutt/git/basic_auth_handler"
 
 class GitBasicAuthHandlerTest < MiniTest::Spec
   context "path filtering" do
     setup do
       @authenticator = Mutt::Test::FakeAuthenticator.new("bill", "bob")
-      @handler = Mutt::GitBasicAuthHandler.new(@authenticator)
+      @handler = Mutt::Git::BasicAuthHandler.new(@authenticator)
     end
 
     should "not require authentication for non-push access" do

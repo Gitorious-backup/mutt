@@ -17,38 +17,40 @@
 #++
 
 module Mutt
-  class GitoriousRepositoryRouter
-    attr_reader :service, :repository_root, :cache
+  module Gitorious
+    class RepositoryRouter
+      attr_reader :service, :repository_root, :cache
 
-    def initialize(service, repository_root)
-      @service = service
-      @repository_root = repository_root
-      @cache = {}
-    end
+      def initialize(service, repository_root)
+        @service = service
+        @repository_root = repository_root
+        @cache = {}
+      end
 
-    def resolve_url(url)
-      cached = cache_get(url)
-      return cached if cached
+      def resolve_url(url)
+        cached = cache_get(url)
+        return cached if cached
 
-      relative_path = service.resolve_url(url)
-      cache_url(url, File.join(repository_root, relative_path))
-    end
+        relative_path = service.resolve_url(url)
+        cache_url(url, File.join(repository_root, relative_path))
+      end
 
-    def resolve_path(path)
-      (@cache.find { |u, p| p == path } || []).first
-    end
+      def resolve_path(path)
+        (@cache.find { |u, p| p == path } || []).first
+      end
 
-    private
-    def cache_url(url, path)
-      @cache[git_url(url)] = path
-    end
+      private
+      def cache_url(url, path)
+        @cache[git_url(url)] = path
+      end
 
-    def cache_get(url)
-      @cache[git_url(url)]
-    end
+      def cache_get(url)
+        @cache[git_url(url)]
+      end
 
-    def git_url(url)
-      url.split(".git").first
+      def git_url(url)
+        url.split(".git").first
+      end
     end
   end
 end

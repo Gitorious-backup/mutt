@@ -15,17 +15,24 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require "mutt/basic_auth_handler"
+require "test_helper"
+require "mutt/gitorious/resolver"
 
-module Mutt
-  class GitBasicAuthHandler < BasicAuth::Handler
-    def handle(target, request, response, dispatch)
-      return unless authentication_required?(request)
-      super
+class GitoriousResolverTest < MiniTest::Spec
+  def setup
+    @router = Object.new
+    @resolver = Mutt::Gitorious::Resolver.new(@router)
+  end
+
+  should "rescue and throw on service error" do
+    def @router.resolve_url(url)
+      raise Mutt::Gitorious::Service::ServiceError.new("gitorious.here", "80")
     end
 
-    def authentication_required?(request)
-      request.query_string =~ /\?service=git-receive-pack/
+    capture_stderr do
+      assert_raises RepositoryNotFoundException do
+        @resolver.open(nil, nil)
+      end
     end
   end
 end

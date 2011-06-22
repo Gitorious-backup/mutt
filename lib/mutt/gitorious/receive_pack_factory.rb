@@ -23,22 +23,24 @@ java_import "org.eclipse.jgit.transport.ReceivePack"
 java_import "org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException"
 
 module Mutt
-  class GitoriousReceivePackFactory
-    attr_reader :service, :router
+  module Gitorious
+    class ReceivePackFactory
+      attr_reader :service, :router
 
-    def initialize(service, router)
-      @service = service
-      @router = router
-    end
+      def initialize(service, router)
+        @service = service
+        @router = router
+      end
 
-    def create(request, repository)
-      user = request.remote_user
-      repo_url = router.resolve_path(repository.directory.absolute_path)
+      def create(request, repository)
+        user = request.remote_user
+        repo_url = router.resolve_path(repository.directory.absolute_path)
 
-      if user.nil? || !service.push_allowed_by?(user, repo_url)
-        raise ServiceNotAuthorizedException.new
-      else
-        ReceivePack.new(repository)
+        if user.nil? || !service.push_allowed_by?(user, repo_url)
+          raise ServiceNotAuthorizedException.new
+        else
+          ReceivePack.new(repository)
+        end
       end
     end
   end

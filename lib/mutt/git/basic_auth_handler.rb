@@ -15,23 +15,19 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require "test_helper"
-require "mutt/gitorious_authenticator"
+require "mutt/basic_auth_handler"
 
-class GitoriousAuthenticatorTest < MiniTest::Spec
-  def setup
-    @authenticator = Mutt::GitoriousAuthenticator.new(db_config)
-  end
+module Mutt
+  module Git
+    class BasicAuthHandler < BasicAuth::Handler
+      def handle(target, request, response, dispatch)
+        return unless authentication_required?(request)
+        super
+      end
 
-  should "authenticate valid user" do
-    assert @authenticator.authenticate("johan", "test")
-  end
-
-  should "not authenticate invalid user" do
-    refute @authenticator.authenticate("johan", "test!!!")
-  end
-
-  should "not authenticate non existent user" do
-    refute @authenticator.authenticate("johanjohan", "test!!!")
+      def authentication_required?(request)
+        request.query_string =~ /\?service=git-receive-pack/
+      end
+    end
   end
 end

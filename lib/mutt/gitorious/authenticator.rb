@@ -18,18 +18,20 @@
 require "active_record"
 
 module Mutt
-  class GitoriousAuthenticator
-    class User < ActiveRecord::Base
-    end
+  module Gitorious
+    class Authenticator
+      class User < ActiveRecord::Base
+      end
 
-    def initialize(db_config)
-      ActiveRecord::Base.establish_connection(db_config)
-    end
+      def initialize(db_config)
+        ActiveRecord::Base.establish_connection(db_config)
+      end
 
-    def authenticate(username, password)
-      !User.find(:first,
-                 :conditions => ["login = ? and crypted_password = sha1(concat('--', salt, '--', ?, '--'))",
-                                 username, password]).nil?
+      def authenticate(username, password)
+        !User.find(:first,
+                   :conditions => ["login = ? and crypted_password = sha1(concat('--', salt, '--', ?, '--'))",
+                                   username, password]).nil?
+      end
     end
   end
 end

@@ -12,13 +12,13 @@ require 'logger'
 require "rubygems"
 require "bundler/setup"
 
-require 'mutt/gitorious_config'
-require 'mutt/gitorious_service'
-require 'mutt/gitorious_resolver'
+require 'mutt/gitorious/config'
+require 'mutt/gitorious/service'
+require 'mutt/gitorious/resolver'
 require 'mutt/basic_auth_handler'
-require 'mutt/gitorious_authenticator'
-require 'mutt/gitorious_receive_pack_factory'
-require 'mutt/gitorious_repository_router'
+require 'mutt/gitorious/authenticator'
+require 'mutt/gitorious/receive_pack_factory'
+require 'mutt/gitorious/repository_router'
 
 java_import 'org.eclipse.jgit.http.server.GitServlet'
 
@@ -27,12 +27,12 @@ java_import 'org.eclipse.jgit.http.server.GitServlet'
 class GitoriousServlet < GitServlet
   def init(servlet_config)
     path = File.join(ENV['GITORIOUS_ROOT'], 'config', 'gitorious.yml')
-    configuration = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
-    service = Mutt::GitoriousService.new(configuration.host, configuration.port)
-    router = Mutt::GitoriousRepositoryRouter.new(service, configuration.repo_root)
-    resolver = Mutt::GitoriousResolver.new(router)
+    configuration = Mutt::Gitorious::Config.new(path, ENV['RAILS_ENV'] || 'production')
+    service = Mutt::Gitorious::Service.new(configuration.host, configuration.port)
+    router = Mutt::Gitorious::RepositoryRouter.new(service, configuration.repo_root)
+    resolver = Mutt::Gitorious::Resolver.new(router)
     self.repository_resolver = resolver
-    self.receive_pack_factory = Mutt::GitoriousReceivePackFactory.new(service, router)
+    self.receive_pack_factory = Mutt::Gitorious::ReceivePackFactory.new(service, router)
     super
   end
 end
@@ -56,15 +56,14 @@ root.add_servlet(holder, '/*')
 
 # TODO: Remove duplication
 path = File.join(ENV['GITORIOUS_ROOT'], 'config', 'gitorious.yml')
-config = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
+config = Mutt::Gitorious::Config.new(path, ENV['RAILS_ENV'] || 'production')
 
-root.security_handler = Mutt::BasicAuth::Handler.new(Mutt::GitoriousAuthenticator.new(config.db_config))
+root.security_handler = Mutt::BasicAuth::Handler.new(Mutt::Gitorious::Authenticator.new(config.db_config))
 
 server.start
 
 PIDFILE = File.join(File.dirname(__FILE__), 'pids', 'git_http.pid')
 File.open(PIDFILE,'w') {|f| f.write(Process.pid.to_s)}
-
 
 #trap ('SIGINT') {
 #  puts 'Cleaning up'
