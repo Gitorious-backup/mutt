@@ -22,7 +22,7 @@ class GitoriousResolverTest < MiniTest::Unit::TestCase
   def setup
     repo_root = '/tmp/repositories'
     @service = Class.new do
-      def fetch_path_from_server(url)
+      def resolve_url(url)
         'eee/fff/abc.git'
       end
     end.new
@@ -34,7 +34,7 @@ class GitoriousResolverTest < MiniTest::Unit::TestCase
   end
 
   def test_should_rescue_and_throw_on_service_error
-    def @service.fetch_path_from_server(incoming_url)
+    def @service.resolve_url(incoming_url)
       raise Mutt::GitoriousService::ServiceError.new('gitorious.here', '80')
     end
 

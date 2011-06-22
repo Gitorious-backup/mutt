@@ -15,10 +15,12 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
+
 require 'java'
-require 'servlet-api-2.5'
-require 'jetty-6.1.26'
-require 'jetty-util-6.1.26'
+require 'servlet-api'
+require 'jetty'
+require 'jetty-util'
+require 'mutt/user'
 
 module Mutt
   module BasicAuth
@@ -69,12 +71,6 @@ module Mutt
       def user
         User.new(username)
       end
-    end
-
-    class User
-      attr_reader :name
-      def initialize(username); @name = username; end
-      alias to_s name
     end
   end
 end

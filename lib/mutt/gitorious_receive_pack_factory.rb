@@ -16,21 +16,35 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'active_record'
+require 'java'
+require 'org.eclipse.jgit'
+require 'org.eclipse.jgit.http.server'
+
+java_import 'org.eclipse.jgit.transport.ReceivePack'
+java_import 'org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException'
 
 module Mutt
-  class GitoriousAuthenticator
-    class User < ActiveRecord::Base
+  class GitoriousReceivePackFactory
+    def initialize(service)
     end
 
-    def initialize(db_config)
-      ActiveRecord::Base.establish_connection(db_config)
+    
+
+    def create(request, repository)
+      puts repository.directory.absolute_path.inspect
+
+      user = request.remote_user
+      if user.nil? # || !service.can_push?(repository, user)
+        raise ServiceNotAuthorizedException.new
+      else
+        ReceivePack.new(repository)
+      end
     end
 
-    def authenticate(username, password)
-      !User.find(:first,
-                 :conditions => ["login = ? and crypted_password = sha1(concat('--', salt, '--', ?, '--'))",
-                                 username, password]).nil?
+    def authorized?(user, repository)
+      # Ask the Gitorious server if user should be granted access
+      # This is basically a matter of querying /<repo_url>/writable_by?username=<username>
+      true
     end
   end
 end

@@ -17,6 +17,7 @@
 #++
 require 'test_helper'
 require 'mutt/gitorious_service'
+require 'mutt/user'
 
 module Mutt
   class Response
@@ -25,29 +26,95 @@ module Mutt
   end
 end
 
-class GitoriousServiceTest < MiniTest::Unit::TestCase
-  def setup
+
+class GitoriousServiceTest < MiniTest::Spec
+  class Repository
+    def directory
+      Directory.new
+    end
+  end
+
+  class Directory
+    def absolute_path
+      '/local/filesystem/path.git'
+    end
+  end
+
+  setup do
     @service = Mutt::GitoriousService.new('gitorious.here', '80')
   end
 
-  def test_should_return_real_path_from_remote_config
-    def @service.open(uri)
-      Mutt::Response.new("real_path:#{uri}")
+  context "resolving repository paths" do
+    should "return real path from remote config" do
+      def @service.open(uri)
+        Mutt::Response.new("real_path:#{uri}")
+      end
+
+      path = @service.fetch_path_from_server('/gitorious/mainline.git')
+      assert_equal 'http://gitorious.here:80/gitorious/mainline/config', path
     end
 
-    path = @service.fetch_path_from_server('/gitorious/mainline.git')
-    assert_equal 'http://gitorious.here:80/gitorious/mainline/config', path
+    should "raise understandable error" do
+      def @service.open(uri)
+        res = Mutt::Response.new("real_path:#{uri}")
+        def res.read; raise Errno::ECONNREFUSED.new; end
+        res
+      end
+
+      assert_raises Mutt::GitoriousService::ConnectionRefused do
+        @service.fetch_path_from_server('/gitorious/mainline.git')
+      end
+    end
   end
 
-  def test_should_raise_understandable_error
-    def @service.open(uri)
-      res = Mutt::Response.new("real_path:#{uri}")
-      def res.read; raise Errno::ECONNREFUSED.new; end
-      res
+  context "caching of repositories" do
+    should "cache url -> path lookups" do
+      def @service.open(uri)
+        Mutt::Response.new("real_path:the/real/path.git")
+      end
+
+      path = @service.fetch_path_from_server('/gitorious/mainline.git')
+      assert_equal '/gitorious/mainline', @service.resolve_path('the/real/path.git')
     end
 
-    assert_raises Mutt::GitoriousService::ConnectionRefused do
-      @service.fetch_path_from_server('/gitorious/mainline.git')
+    should "cache server lookups" do
+      def @service.open(uri)
+        raise "Oh no you don't"
+      end
+
+      @service.cache_url('/gitorious/mainline', 'the/real/path.git')
+      assert_equal 'the/real/path.git', @service.resolve_url('/gitorious/mainline.git')
     end
   end
+
+  context "authorizing users for push" do
+    setup do
+      def @service.open(uri)
+        if uri =~ /username=bill/
+          Mutt::Response.new('true')
+        else
+          Mutt::Response.new('false')
+        end
+      end
+      @repository = Repository.new
+      @service.cache_url('/path/to/repo.git', '/local/filesystem/path.git')
+    end
+
+    should "grant an authorized user push access" do
+      assert @service.push_allowed_by?(Mutt::User.new('bill'), @repository)      
+    end
+
+    should "deny an unauthorized user push access" do
+      refute @service.push_allowed_by?(Mutt::User.new('evil_hacker'), @repository)      
+    end
+
+    should "deny authorized user when repository path is not cached" do
+      service = Mutt::GitoriousService.new("gitorious.here", 3000)
+      refute service.push_allowed_by?(Mutt::User.new('bill'), @repository)
+    end
+  end    
+
+  # User can push
+  # User cannot push
+  # Repository is not in cache (url unknown)
 end

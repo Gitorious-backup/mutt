@@ -16,21 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'active_record'
-
 module Mutt
-  class GitoriousAuthenticator
-    class User < ActiveRecord::Base
-    end
-
-    def initialize(db_config)
-      ActiveRecord::Base.establish_connection(db_config)
-    end
-
-    def authenticate(username, password)
-      !User.find(:first,
-                 :conditions => ["login = ? and crypted_password = sha1(concat('--', salt, '--', ?, '--'))",
-                                 username, password]).nil?
-    end
+  class User
+    attr_reader :name
+    def initialize(username); @name = username; end
+    alias to_s name
   end
 end

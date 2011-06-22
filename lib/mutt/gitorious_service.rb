@@ -24,19 +24,36 @@ module Mutt
     def initialize(host, port)
       @host = host
       @port = port
+      @cache = {}
     end
 
-    def fetch_path_from_server(given)
-      server_root = "http://#{host}:#{port}"
-      repo_path = given.split(".git").first
-      request_uri = File.join(server_root, repo_path, "config")
-      begin
-        data = open(request_uri).read
-        data.scan(/^real_path:(.*)$/).flatten.first
-      rescue Errno::ECONNREFUSED
-        raise ConnectionRefused.new(host, port)
-      rescue OpenURI::HTTPError => e
-        raise ServiceError.new(e.message)
+    def resolve_url(url)
+      @cache[url.split('.git').first] || fetch_path_from_server(url)
+    end
+
+    def resolve_path(path)
+      (@cache.find { |u, p| p == path } || []).first
+    end
+
+    def cache_url(url, path)
+      @cache ||= {}
+      @cache[url] = path
+    end
+
+    def fetch_path_from_server(url)
+      repo_url = url.split('.git').first
+
+      service_request(repo_url, 'config') do |data|
+        cache_url(repo_url, data.scan(/^real_path:(.*)$/).flatten.first)
+      end
+    end
+
+    def push_allowed_by?(user, repository)
+      repo_url = resolve_path(repository.directory.absolute_path)
+      return false if repo_url.nil?
+
+      service_request(repo_url, "writable_by?username=#{user.name}") do |data|
+        data == 'true'
       end
     end
 
@@ -46,6 +63,19 @@ module Mutt
     class ConnectionRefused < ServiceError
       def initialize(host, port)
         super("Unable to reach Gitorious on http://#{host}:#{port} - is it running?")
+      end
+    end
+
+    private
+    def service_request(*args)
+      request_uri = File.join("http://#{host}:#{port}", *args)
+
+      begin
+        yield open(request_uri).read
+      rescue Errno::ECONNREFUSED
+        raise ConnectionRefused.new(host, port)
+      rescue OpenURI::HTTPError => e
+        raise ServiceError.new(e.message)
       end
     end
   end

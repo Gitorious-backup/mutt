@@ -1,11 +1,11 @@
 # coding: utf-8
 raise 'You need to run this with JRuby' unless defined?(JRUBY_VERSION)
 
-require 'servlet-api-2.5'
-require 'org.eclipse.jgit-0.9.3'
+require 'servlet-api'
+require 'org.eclipse.jgit'
 
-require 'jetty-util-6.1.26'
-require 'jetty-6.1.26'
+require 'jetty-util'
+require 'jetty'
 require 'java'
 require 'logger'
 
@@ -17,31 +17,9 @@ require 'mutt/gitorious_service'
 require 'mutt/gitorious_resolver'
 require 'mutt/basic_auth_handler'
 require 'mutt/gitorious_authenticator'
+require 'mutt/gitorious_receive_pack_factory'
 
 java_import 'org.eclipse.jgit.http.server.GitServlet'
-java_import 'org.eclipse.jgit.transport.ReceivePack'
-java_import 'org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException'
-
-class GitoriousReceivePackFactory
-  def create(request, repository)
-    user = request.remote_user
-    if user.nil?
-      raise org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException.new
-    else
-      ReceivePack.new(repository)
-    end
-  end
-
-  def authenticated?(user)
-    !user.nil?
-  end
-
-  def authorized?(user, repository)
-    # Ask the Gitorious server if user should be granted access
-    # This is basically a matter of querying /<repo_url>/writable_by?username=<username>
-    true
-  end
-end
 
 # Our servlet, based on JGit's GitServlet
 # Attaches a custom resolver, otherwise all normal
@@ -53,8 +31,8 @@ class GitoriousServlet < GitServlet
     @gitorious_configuration = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
     service = Mutt::GitoriousService.new(gitorious_configuration.host, gitorious_configuration.port)
     resolver = Mutt::GitoriousResolver.new(service, gitorious_configuration.repo_root)
-    setRepositoryResolver(resolver)
-    setReceivePackFactory(GitoriousReceivePackFactory.new)
+    self.repository_resolver = resolver
+    self.receive_pack_factory = Mutt::GitoriousReceivePackFactory.new
     super
   end
 end

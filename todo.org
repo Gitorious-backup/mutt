@@ -10,3 +10,6 @@
 ** TODO pre-receive: checks force-push etc
 ** TODO post-receive: pushes messages on the queue
 ** TODO post-update: this helps users with prehistoric Git clients. May not be required
+* Requires JRuby >= 1.6.0 (Gemspec)
+* Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
+* Check that Gitorious is running when booting

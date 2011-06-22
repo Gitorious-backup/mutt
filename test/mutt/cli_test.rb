@@ -15,22 +15,10 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
+require 'test_helper'
 
-require 'active_record'
-
-module Mutt
-  class GitoriousAuthenticator
-    class User < ActiveRecord::Base
-    end
-
-    def initialize(db_config)
-      ActiveRecord::Base.establish_connection(db_config)
-    end
-
-    def authenticate(username, password)
-      !User.find(:first,
-                 :conditions => ["login = ? and crypted_password = sha1(concat('--', salt, '--', ?, '--'))",
-                                 username, password]).nil?
-    end
+class MuttCliTest < MiniTest::Unit::TestCase
+  def test_should_eventually_do_awesome_stuff
+    assert true
   end
 end

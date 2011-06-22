@@ -5,5 +5,6 @@ gem 'activerecord-jdbcmysql-adapter'
 gem 'activerecord', '~>3.0'
 
 group :test do
-  gem 'minitest', :require => 'minitest/autorun'
+  gem 'mini_shoulda'
+  gem 'minitest', '~> 2.0.2', :require => 'minitest/autorun'
 end

@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # encoding: utf-8
 #--
 #   Copyright (C) 2011 Gitorious AS
@@ -18,35 +16,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'optparse'
+require 'test_helper'
+require 'mutt/gitorious_receive_pack_factory'
 
-DEFAULT_PORT = '8080'
-DEFAULT_RAILS_ENV = 'production'
-
-options = {}
-op = OptionParser.new do |opts|
-  opts.on('-r', '--root', 'Where is Gitorious installed on your system?') do |path|
-    options[:gitorious_root] = path
-  end
-
-  opts.on('-e', '--environment', "Which RAILS_ENV to use (default: #{DEFAULT_RAILS_ENV})") do |e|
-    options[:rails_env] = e
-  end
-    
-  opts.on('-p', '--port', "Which port to listen to (default: #{DEFAULT_PORT})") do |port|
-    options[:port] = port
-  end
-  
-  opts.on_tail('-h', '--help', 'show this message') do
-    abort opts.to_s
-  end
+class GitoriousReceivePackFactoryTest < MiniTest::Unit::TestCase
+  #def test_
 end
-
-
-begin
-  rest = op.parse(ARGV) 
-rescue 
-  abort op.to_s 
-end
-
-abort op.to_s unless options[:gitorious_root]

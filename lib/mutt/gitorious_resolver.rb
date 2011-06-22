@@ -19,7 +19,6 @@ require "java"
 require "org.eclipse.jgit.http.server-0.9.3"
 require "org.eclipse.jgit-0.9.3"
 
-
 java_import "org.eclipse.jgit.util.FS"
 java_import "org.eclipse.jgit.lib.RepositoryCache"
 java_import "org.eclipse.jgit.errors.RepositoryNotFoundException"
@@ -34,13 +33,13 @@ module Mutt
     end
 
     def resolve(incoming_url)
-      relative_path = service.fetch_path_from_server(incoming_url)
+      relative_path = service.resolve_url(incoming_url)
       File.join(repository_root, relative_path)
     rescue Mutt::GitoriousService::ServiceError => e
       log "Unable to map repository at #{incoming_url}, error is '#{e.message.strip}'"
       raise RepositoryNotFoundException.new(e.message)
     end
-  
+
     def open(request, name)
       git_dir = java.io.File.new(resolve(name))
       RepositoryCache.open(RepositoryCache::FileKey.lenient(git_dir, FS::DETECTED), true)
