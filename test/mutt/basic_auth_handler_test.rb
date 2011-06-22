@@ -38,21 +38,21 @@ class BasicAuthHandlerTest < MiniTest::Unit::TestCase
   end
 
   def test_should_authenticate_request_with_valid_user
-    request = Mutt::Test::Request.new('Basic:YmlsbDpib2I=')
+    request = Mutt::Test::Request.new(:auth_string => 'Basic:YmlsbDpib2I=')
     response = Mutt::Test::Response.new
     @handler.authenticate(request, response)
     assert_equal 'bill', request.user_principal.name
   end
 
   def test_should_reject_request_with_invalid_user
-    request = Mutt::Test::Request.new('Basic:dXNlcjpwYXNz')
+    request = Mutt::Test::Request.new(:auth_string => 'Basic:dXNlcjpwYXNz')
     response = Mutt::Test::Response.new
     @handler.authenticate(request, response)
     assert_nil request.user_principal
   end
 
   def test_should_set_authenticate_header_for_missing_credentials
-    request = Mutt::Test::Request.new(nil)
+    request = Mutt::Test::Request.new(:auth_string => nil)
     response = Mutt::Test::Response.new
     @handler.authenticate(request, response)
     assert_equal 'Basic realm=\'Gitorious\'', response.headers['WWW-Authenticate']

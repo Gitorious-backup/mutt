@@ -18,21 +18,21 @@ require 'mutt/gitorious_resolver'
 require 'mutt/basic_auth_handler'
 require 'mutt/gitorious_authenticator'
 require 'mutt/gitorious_receive_pack_factory'
+require 'mutt/gitorious_repository_router'
 
 java_import 'org.eclipse.jgit.http.server.GitServlet'
 
 # Our servlet, based on JGit's GitServlet
 # Attaches a custom resolver, otherwise all normal
 class GitoriousServlet < GitServlet
-  attr_reader :gitorious_configuration
-  
   def init(servlet_config)
     path = File.join(ENV['GITORIOUS_ROOT'], 'config', 'gitorious.yml')
-    @gitorious_configuration = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
-    service = Mutt::GitoriousService.new(gitorious_configuration.host, gitorious_configuration.port)
-    resolver = Mutt::GitoriousResolver.new(service, gitorious_configuration.repo_root)
+    configuration = Mutt::GitoriousConfig.new(path, ENV['RAILS_ENV'] || 'production')
+    service = Mutt::GitoriousService.new(configuration.host, configuration.port)
+    router = Mutt::GitoriousRepositoryRouter.new(service, configuration.repo_root)
+    resolver = Mutt::GitoriousResolver.new(router)
     self.repository_resolver = resolver
-    self.receive_pack_factory = Mutt::GitoriousReceivePackFactory.new
+    self.receive_pack_factory = Mutt::GitoriousReceivePackFactory.new(service, router)
     super
   end
 end

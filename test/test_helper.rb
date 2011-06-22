@@ -18,10 +18,11 @@ module Mutt
 
     class Request
       attr_accessor :auth_type, :user_principal
-      attr_reader :auth_string
+      attr_reader :auth_string, :remote_user
 
-      def initialize(auth_string)
-        @auth_string = auth_string
+      def initialize(options = {})
+        @auth_string = options[:auth_string]
+        @remote_user = options[:remote_user]
       end
 
       def get_header(name)

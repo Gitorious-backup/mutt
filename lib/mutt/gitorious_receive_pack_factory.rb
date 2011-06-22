@@ -25,26 +25,22 @@ java_import 'org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException
 
 module Mutt
   class GitoriousReceivePackFactory
-    def initialize(service)
+    attr_reader :service, :router
+
+    def initialize(service, router)
+      @service = service
+      @router = router
     end
 
-    
-
     def create(request, repository)
-      puts repository.directory.absolute_path.inspect
-
       user = request.remote_user
-      if user.nil? # || !service.can_push?(repository, user)
+      repo_url = router.resolve_path(repository.directory.absolute_path)
+
+      if user.nil? || !service.push_allowed_by?(user, repo_url)
         raise ServiceNotAuthorizedException.new
       else
         ReceivePack.new(repository)
       end
-    end
-
-    def authorized?(user, repository)
-      # Ask the Gitorious server if user should be granted access
-      # This is basically a matter of querying /<repo_url>/writable_by?username=<username>
-      true
     end
   end
 end

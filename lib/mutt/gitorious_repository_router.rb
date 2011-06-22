@@ -15,24 +15,40 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'test_helper'
-require 'mutt/gitorious_resolver'
 
-class GitoriousResolverTest < MiniTest::Spec
-  def setup
-    @router = Object.new
-    @resolver = Mutt::GitoriousResolver.new(@router)
-  end
+module Mutt
+  class GitoriousRepositoryRouter
+    attr_reader :service, :repository_root, :cache
 
-  should "rescue and throw on service error" do
-    def @router.resolve_url(url)
-      raise Mutt::GitoriousService::ServiceError.new('gitorious.here', '80')
+    def initialize(service, repository_root)
+      @service = service
+      @repository_root = repository_root
+      @cache = {}
     end
 
-    capture_stderr do
-      assert_raises RepositoryNotFoundException do
-        @resolver.open(nil, nil)
-      end
+    def resolve_url(url)
+      cached = cache_get(url)
+      return cached if cached
+
+      relative_path = service.resolve_url(url)
+      cache_url(url, File.join(repository_root, relative_path))
+    end
+
+    def resolve_path(path)
+      (@cache.find { |u, p| p == path } || []).first
+    end
+
+    private
+    def cache_url(url, path)
+      @cache[git_url(url)] = path
+    end
+
+    def cache_get(url)
+      @cache[git_url(url)]
+    end
+
+    def git_url(url)
+      url.split('.git').first
     end
   end
 end

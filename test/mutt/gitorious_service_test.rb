@@ -30,7 +30,7 @@ class GitoriousServiceTest < MiniTest::Spec
         Mutt::Test::Response.new("real_path:#{uri}")
       end
 
-      path = @service.fetch_path_from_server('/gitorious/mainline.git')
+      path = @service.resolve_url('/gitorious/mainline.git')
       assert_equal 'http://gitorious.here:80/gitorious/mainline/config', path
     end
 
@@ -42,28 +42,8 @@ class GitoriousServiceTest < MiniTest::Spec
       end
 
       assert_raises Mutt::GitoriousService::ConnectionRefused do
-        @service.fetch_path_from_server('/gitorious/mainline.git')
+        @service.resolve_url('/gitorious/mainline.git')
       end
-    end
-  end
-
-  context "caching of repositories" do
-    should "cache url -> path lookups" do
-      def @service.open(uri)
-        Mutt::Test::Response.new("real_path:the/real/path.git")
-      end
-
-      path = @service.fetch_path_from_server('/gitorious/mainline.git')
-      assert_equal '/gitorious/mainline', @service.resolve_path('the/real/path.git')
-    end
-
-    should "cache server lookups" do
-      def @service.open(uri)
-        raise "Oh no you don't"
-      end
-
-      @service.cache_url('/gitorious/mainline', 'the/real/path.git')
-      assert_equal 'the/real/path.git', @service.resolve_url('/gitorious/mainline.git')
     end
   end
 
@@ -76,8 +56,7 @@ class GitoriousServiceTest < MiniTest::Spec
           Mutt::Test::Response.new('false')
         end
       end
-      @repository = Repository.new('/local/filesystem/path.git')
-      @service.cache_url('/path/to/repo.git', '/local/filesystem/path.git')
+      @repository = '/local/filesystem/path.git'
     end
 
     should "grant an authorized user push access" do
@@ -86,11 +65,6 @@ class GitoriousServiceTest < MiniTest::Spec
 
     should "deny an unauthorized user push access" do
       refute @service.push_allowed_by?(Mutt::User.new('evil_hacker'), @repository)      
-    end
-
-    should "deny authorized user when repository path is not cached" do
-      service = Mutt::GitoriousService.new("gitorious.here", 3000)
-      refute service.push_allowed_by?(Mutt::User.new('bill'), @repository)
     end
   end    
 end

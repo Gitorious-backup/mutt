@@ -25,24 +25,18 @@ java_import "org.eclipse.jgit.errors.RepositoryNotFoundException"
 
 module Mutt
   class GitoriousResolver
-    attr_reader :service, :repository_root
+    attr_reader :router
 
-    def initialize(service, repository_root)
-      @service = service
-      @repository_root = repository_root
-    end
-
-    def resolve(incoming_url)
-      relative_path = service.resolve_url(incoming_url)
-      File.join(repository_root, relative_path)
-    rescue Mutt::GitoriousService::ServiceError => e
-      log "Unable to map repository at #{incoming_url}, error is '#{e.message.strip}'"
-      raise RepositoryNotFoundException.new(e.message)
+    def initialize(router)
+      @router = router
     end
 
     def open(request, name)
-      git_dir = java.io.File.new(resolve(name))
+      git_dir = java.io.File.new(router.resolve_url(name))
       RepositoryCache.open(RepositoryCache::FileKey.lenient(git_dir, FS::DETECTED), true)
+    rescue Mutt::GitoriousService::ServiceError => e
+      log "Unable to map repository at #{name}, error is '#{e.message.strip}'"
+      raise RepositoryNotFoundException.new(e.message)
     end
 
     def log(message)

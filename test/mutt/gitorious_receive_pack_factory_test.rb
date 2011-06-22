@@ -19,6 +19,45 @@
 require 'test_helper'
 require 'mutt/gitorious_receive_pack_factory'
 
-class GitoriousReceivePackFactoryTest < MiniTest::Unit::TestCase
-  #def test_
+class GitoriousReceivePackFactoryTest < MiniTest::Spec
+  setup do
+    @repository = Mutt::Test::Repository.new('gitorious.git')
+    @router = Object.new
+    def @router.resolve_path(url); 'aaa/bbb/ccc.git'; end
+  end
+
+  should "raise not authorized for anonymous user" do
+    request = Mutt::Test::Request.new
+    factory = Mutt::GitoriousReceivePackFactory.new(nil, @router)
+
+    assert_raises ServiceNotAuthorizedException do
+      factory.create(request, @repository)
+    end
+  end
+
+  should "raise if user is not authorized to push" do
+    service = Object.new
+    def service.push_allowed_by?(repo, user); false; end
+    request = Mutt::Test::Request.new(:remote_user => 'bill')
+    factory = Mutt::GitoriousReceivePackFactory.new(service, @router)
+
+    assert_raises ServiceNotAuthorizedException do
+      factory.create(request, @repository)
+    end
+  end
+
+  should "not raise if user is authorized to push" do
+    service = Object.new
+    def service.push_allowed_by?(repo, user); true; end
+    request = Mutt::Test::Request.new(:remote_user => 'bill')
+    factory = Mutt::GitoriousReceivePackFactory.new(service, @router)
+
+    begin
+      factory.create(request, @repository)
+    rescue ServiceNotAuthorizedException
+      assert false, "Expected not to raise #{exception_class}"
+    rescue TypeError
+      # JRuby will throw a funky native error because repository is nil
+    end
+  end
 end

@@ -24,35 +24,18 @@ module Mutt
     def initialize(host, port)
       @host = host
       @port = port
-      @cache = {}
     end
 
     def resolve_url(url)
-      @cache[url.split('.git').first] || fetch_path_from_server(url)
-    end
-
-    def resolve_path(path)
-      (@cache.find { |u, p| p == path } || []).first
-    end
-
-    def cache_url(url, path)
-      @cache ||= {}
-      @cache[url] = path
-    end
-
-    def fetch_path_from_server(url)
       repo_url = url.split('.git').first
 
       service_request(repo_url, 'config') do |data|
-        cache_url(repo_url, data.scan(/^real_path:(.*)$/).flatten.first)
+        data.scan(/^real_path:(.*)$/).flatten.first
       end
     end
 
-    def push_allowed_by?(user, repository)
-      repo_url = resolve_path(repository.directory.absolute_path)
-      return false if repo_url.nil?
-
-      service_request(repo_url, "writable_by?username=#{user.name}") do |data|
+    def push_allowed_by?(user, repo_url)
+      service_request(repo_url, "writable_by?username=#{user}") do |data|
         data == 'true'
       end
     end
