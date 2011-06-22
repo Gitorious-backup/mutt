@@ -1,10 +1,9 @@
 * TODO Error handling [0/4]
 ** TODO No JRuby
-** TODO No Gitorious running
+** TODO No Gitorious running (warn if Gitorious can not be reached)
 ** TODO No GITORIOUS_ROOT
 ** TODO (No JETTY_PORT)
 **
-* TODO Force pushing should be respected
 * DONE Don't authenticate non-push activity
 * TODO Support the Gitorious hooks [0/3]
 ** TODO pre-receive: checks force-push etc
@@ -12,4 +11,3 @@
 ** TODO post-update: this helps users with prehistoric Git clients. May not be required
 * TODO Requires JRuby >= 1.6.0 (Gemspec)
 * TODO Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
-* TODO Check that Gitorious is running when booting
