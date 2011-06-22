@@ -34,7 +34,7 @@ end
 class BasicAuthHandlerTest < MiniTest::Unit::TestCase
   def setup
     @authenticator = FakeAuthenticator.new('bill', 'bob')
-    @handler = Mutt::BasicAuth::Handler.new(@authenticator)
+    @handler = Mutt::BasicAuth::Handler.new(@authenticator, "Gitorious")
   end
 
   def test_should_authenticate_request_with_valid_user

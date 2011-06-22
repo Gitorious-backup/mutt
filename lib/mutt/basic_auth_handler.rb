@@ -25,11 +25,12 @@ require 'mutt/user'
 module Mutt
   module BasicAuth
     class Handler < org.mortbay.jetty.security.SecurityHandler
-      attr_reader :authenticator
+      attr_reader :authenticator, :realm
 
-      def initialize(authenticator = DatabaseAuthenticator.new)
+      def initialize(authenticator, realm="Password protected area")
         super()
         @authenticator = authenticator
+        @realm = realm
       end
 
       def handle(target, request, response, dispatch)
@@ -42,7 +43,7 @@ module Mutt
         credentials = Credentials.parse(request.get_header(org.mortbay.jetty.HttpHeaders::AUTHORIZATION))
 
         if credentials.nil?
-          response.set_header('WWW-Authenticate', 'Basic realm=\'Gitorious\'')
+          response.set_header('WWW-Authenticate', "Basic realm='#{realm}'")
         elsif authenticator.authenticate(credentials.username, credentials.password)
           set_user_principal(request, credentials.user)
         end
