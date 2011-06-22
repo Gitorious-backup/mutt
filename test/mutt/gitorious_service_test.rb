@@ -19,14 +19,6 @@ require 'test_helper'
 require 'mutt/gitorious_service'
 require 'mutt/user'
 
-module Mutt
-  class Response
-    def initialize(body); @body = body; end
-    def read; @body; end
-  end
-end
-
-
 class GitoriousServiceTest < MiniTest::Spec
   class Repository
     def directory
@@ -47,7 +39,7 @@ class GitoriousServiceTest < MiniTest::Spec
   context "resolving repository paths" do
     should "return real path from remote config" do
       def @service.open(uri)
-        Mutt::Response.new("real_path:#{uri}")
+        Mutt::Test::Response.new("real_path:#{uri}")
       end
 
       path = @service.fetch_path_from_server('/gitorious/mainline.git')
@@ -56,7 +48,7 @@ class GitoriousServiceTest < MiniTest::Spec
 
     should "raise understandable error" do
       def @service.open(uri)
-        res = Mutt::Response.new("real_path:#{uri}")
+        res = Mutt::Test::Response.new("real_path:#{uri}")
         def res.read; raise Errno::ECONNREFUSED.new; end
         res
       end
@@ -70,7 +62,7 @@ class GitoriousServiceTest < MiniTest::Spec
   context "caching of repositories" do
     should "cache url -> path lookups" do
       def @service.open(uri)
-        Mutt::Response.new("real_path:the/real/path.git")
+        Mutt::Test::Response.new("real_path:the/real/path.git")
       end
 
       path = @service.fetch_path_from_server('/gitorious/mainline.git')
@@ -91,9 +83,9 @@ class GitoriousServiceTest < MiniTest::Spec
     setup do
       def @service.open(uri)
         if uri =~ /username=bill/
-          Mutt::Response.new('true')
+          Mutt::Test::Response.new('true')
         else
-          Mutt::Response.new('false')
+          Mutt::Test::Response.new('false')
         end
       end
       @repository = Repository.new
@@ -113,8 +105,4 @@ class GitoriousServiceTest < MiniTest::Spec
       refute service.push_allowed_by?(Mutt::User.new('bill'), @repository)
     end
   end    
-
-  # User can push
-  # User cannot push
-  # Repository is not in cache (url unknown)
 end

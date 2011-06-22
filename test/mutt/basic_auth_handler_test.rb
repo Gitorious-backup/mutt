@@ -31,31 +31,6 @@ class FakeAuthenticator
   end
 end
 
-class FakeRequest
-  attr_accessor :auth_type, :user_principal
-  attr_reader :auth_string
-
-  def initialize(auth_string)
-    @auth_string = auth_string
-  end
-
-  def get_header(name)
-    auth_string
-  end
-end
-
-class FakeResponse
-  attr_reader :headers
-
-  def initialize
-    @headers = {}
-  end
-
-  def set_header(name, value)
-    headers[name] = value
-  end
-end
-
 class BasicAuthHandlerTest < MiniTest::Unit::TestCase
   def setup
     @authenticator = FakeAuthenticator.new('bill', 'bob')
@@ -63,22 +38,22 @@ class BasicAuthHandlerTest < MiniTest::Unit::TestCase
   end
 
   def test_should_authenticate_request_with_valid_user
-    request = FakeRequest.new('Basic:YmlsbDpib2I=')
-    response = FakeResponse.new
+    request = Mutt::Test::Request.new('Basic:YmlsbDpib2I=')
+    response = Mutt::Test::Response.new
     @handler.authenticate(request, response)
     assert_equal 'bill', request.user_principal.name
   end
 
   def test_should_reject_request_with_invalid_user
-    request = FakeRequest.new('Basic:dXNlcjpwYXNz')
-    response = FakeResponse.new
+    request = Mutt::Test::Request.new('Basic:dXNlcjpwYXNz')
+    response = Mutt::Test::Response.new
     @handler.authenticate(request, response)
     assert_nil request.user_principal
   end
 
   def test_should_set_authenticate_header_for_missing_credentials
-    request = FakeRequest.new(nil)
-    response = FakeResponse.new
+    request = Mutt::Test::Request.new(nil)
+    response = Mutt::Test::Response.new
     @handler.authenticate(request, response)
     assert_equal 'Basic realm=\'Gitorious\'', response.headers['WWW-Authenticate']
   end

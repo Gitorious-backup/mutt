@@ -15,6 +15,36 @@ module Mutt
 
       @config
     end
+
+    class Request
+      attr_accessor :auth_type, :user_principal
+      attr_reader :auth_string
+
+      def initialize(auth_string)
+        @auth_string = auth_string
+      end
+
+      def get_header(name)
+        auth_string
+      end
+    end
+
+    class Response
+      attr_reader :headers
+
+      def initialize(body = nil)
+        @body = body
+        @headers = {}
+      end
+
+      def read
+        @body
+      end
+
+      def set_header(name, value)
+        headers[name] = value
+      end
+    end
   end
 end
 
