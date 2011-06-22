@@ -15,15 +15,14 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-
-require 'test_helper'
-require 'mutt/gitorious_receive_pack_factory'
+require "test_helper"
+require "mutt/gitorious_receive_pack_factory"
 
 class GitoriousReceivePackFactoryTest < MiniTest::Spec
   setup do
-    @repository = Mutt::Test::Repository.new('gitorious.git')
+    @repository = Mutt::Test::Repository.new("gitorious.git")
     @router = Object.new
-    def @router.resolve_path(url); 'aaa/bbb/ccc.git'; end
+    def @router.resolve_path(url); "aaa/bbb/ccc.git"; end
   end
 
   should "raise not authorized for anonymous user" do
@@ -38,7 +37,7 @@ class GitoriousReceivePackFactoryTest < MiniTest::Spec
   should "raise if user is not authorized to push" do
     service = Object.new
     def service.push_allowed_by?(repo, user); false; end
-    request = Mutt::Test::Request.new(:remote_user => 'bill')
+    request = Mutt::Test::Request.new(:remote_user => "bill")
     factory = Mutt::GitoriousReceivePackFactory.new(service, @router)
 
     assert_raises ServiceNotAuthorizedException do
@@ -49,7 +48,7 @@ class GitoriousReceivePackFactoryTest < MiniTest::Spec
   should "not raise if user is authorized to push" do
     service = Object.new
     def service.push_allowed_by?(repo, user); true; end
-    request = Mutt::Test::Request.new(:remote_user => 'bill')
+    request = Mutt::Test::Request.new(:remote_user => "bill")
     factory = Mutt::GitoriousReceivePackFactory.new(service, @router)
 
     begin

@@ -15,10 +15,10 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'test_helper'
+require "test_helper"
 
-class MuttCliTest < MiniTest::Unit::TestCase
-  def test_should_eventually_do_awesome_stuff
+class MuttCliTest < MiniTest::Spec
+  should "eventually do awesome stuff" do
     assert true
   end
 end

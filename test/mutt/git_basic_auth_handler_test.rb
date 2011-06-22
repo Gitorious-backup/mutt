@@ -15,34 +15,34 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'test_helper'
-require 'mutt/git_basic_auth_handler'
+require "test_helper"
+require "mutt/git_basic_auth_handler"
 
 class GitBasicAuthHandlerTest < MiniTest::Spec
-  context 'path filtering' do
+  context "path filtering" do
     setup do
-      @authenticator = Mutt::Test::FakeAuthenticator.new('bill','bob')
+      @authenticator = Mutt::Test::FakeAuthenticator.new("bill", "bob")
       @handler = Mutt::GitBasicAuthHandler.new(@authenticator)
     end
 
-    should 'not require authentication for non-push access' do
+    should "not require authentication for non-push access" do
       request = Mutt::Test::Request.new
       refute @handler.authentication_required?(request)
     end
 
-    should 'require authentication for push access' do
-      request = Mutt::Test::Request.new(:query_string => '?service=git-receive-pack')
+    should "require authentication for push access" do
+      request = Mutt::Test::Request.new(:query_string => "?service=git-receive-pack")
       assert @handler.authentication_required?(request)
     end
 
-    should 'authenticate when authentication is required' do
+    should "authenticate when authentication is required" do
       def @handler.authenticate(request, response)
         @authenticated = true
       end
       def @handler.authenticated?
         @authenticated
       end
-      request = Mutt::Test::Request.new(:query_string => '?service=git-receive-pack')
+      request = Mutt::Test::Request.new(:query_string => "?service=git-receive-pack")
       @handler.handle(nil, request, nil, nil)
       assert @handler.authenticated?
     end

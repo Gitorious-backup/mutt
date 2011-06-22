@@ -15,12 +15,11 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-
-require 'java'
-require 'servlet-api'
-require 'jetty'
-require 'jetty-util'
-require 'mutt/user'
+require "java"
+require "servlet-api"
+require "jetty"
+require "jetty-util"
+require "mutt/user"
 
 module Mutt
   module BasicAuth
@@ -43,7 +42,7 @@ module Mutt
         credentials = Credentials.parse(request.get_header(org.mortbay.jetty.HttpHeaders::AUTHORIZATION))
 
         if credentials.nil?
-          response.set_header('WWW-Authenticate', "Basic realm='#{realm}'")
+          response.set_header("WWW-Authenticate", "Basic realm='#{realm}'")
         elsif authenticator.authenticate(credentials.username, credentials.password)
           set_user_principal(request, credentials.user)
         end
@@ -65,7 +64,7 @@ module Mutt
 
       def self.parse(auth_string)
         return nil if auth_string.nil?
-        username, password = auth_string[6..-1].unpack('m').first.split(':')
+        username, password = auth_string[6..-1].unpack("m").first.split(":")
         new(username, password)
       end
 

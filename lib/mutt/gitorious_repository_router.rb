@@ -48,7 +48,7 @@ module Mutt
     end
 
     def git_url(url)
-      url.split('.git').first
+      url.split(".git").first
     end
   end
 end

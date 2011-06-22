@@ -15,13 +15,13 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'test_helper'
-require 'mutt/gitorious_service'
-require 'mutt/user'
+require "test_helper"
+require "mutt/gitorious_service"
+require "mutt/user"
 
 class GitoriousServiceTest < MiniTest::Spec
   setup do
-    @service = Mutt::GitoriousService.new('gitorious.here', '80')
+    @service = Mutt::GitoriousService.new("gitorious.here", "80")
   end
 
   context "resolving repository paths" do
@@ -30,8 +30,8 @@ class GitoriousServiceTest < MiniTest::Spec
         Mutt::Test::Response.new("real_path:#{uri}")
       end
 
-      path = @service.resolve_url('/gitorious/mainline.git')
-      assert_equal 'http://gitorious.here:80/gitorious/mainline/config', path
+      path = @service.resolve_url("/gitorious/mainline.git")
+      assert_equal "http://gitorious.here:80/gitorious/mainline/config", path
     end
 
     should "raise understandable error" do
@@ -42,7 +42,7 @@ class GitoriousServiceTest < MiniTest::Spec
       end
 
       assert_raises Mutt::GitoriousService::ConnectionRefused do
-        @service.resolve_url('/gitorious/mainline.git')
+        @service.resolve_url("/gitorious/mainline.git")
       end
     end
   end
@@ -51,20 +51,21 @@ class GitoriousServiceTest < MiniTest::Spec
     setup do
       def @service.open(uri)
         if uri =~ /username=bill/
-          Mutt::Test::Response.new('true')
+          Mutt::Test::Response.new("true")
         else
-          Mutt::Test::Response.new('false')
+          Mutt::Test::Response.new("false")
         end
       end
-      @repository = '/local/filesystem/path.git'
+
+      @repository = "/local/filesystem/path.git"
     end
 
     should "grant an authorized user push access" do
-      assert @service.push_allowed_by?(Mutt::User.new('bill'), @repository)      
+      assert @service.push_allowed_by?(Mutt::User.new("bill"), @repository)
     end
 
     should "deny an unauthorized user push access" do
-      refute @service.push_allowed_by?(Mutt::User.new('evil_hacker'), @repository)      
+      refute @service.push_allowed_by?(Mutt::User.new("evil_hacker"), @repository)
     end
-  end    
+  end
 end

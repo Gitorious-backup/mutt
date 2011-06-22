@@ -51,42 +51,42 @@ module YAML
   end
 end
 
-class GitoriousConfigTest < MiniTest::Unit::TestCase
+class GitoriousConfigTest < MiniTest::Spec
   def setup
     @config = Mutt::GitoriousConfig.new(__FILE__)
   end
 
-  def test_should_load_host
+  should "load host" do
     assert_equal "gitorious.here", @config.host
   end
 
-  def test_should_load_port
+  should "load port" do
     assert_equal "3000", @config.port
   end
 
-  def test_should_load_host
+  should "load host" do
     assert_equal "/var/www/gitorious/repositories", @config.repo_root
   end
 
-  def test_should_respect_rails_env
+  should "respect rails env" do
     config = Mutt::GitoriousConfig.new(__FILE__, "development")
     assert_equal "gitorious.there", config.host
   end
 
-  def test_should_raise_on_missing_config_file
+  should "raise on_missing config file" do
     assert_raises Errno::ENOENT do
       config = Mutt::GitoriousConfig.new(__FILE__ + ".invalid")
     end
   end
 
-  def test_should_get_database_configuration
+  should "get database configuration" do
     db_config = @config.db_config
 
     assert_equal "jdbcmysql", db_config["adapter"]
     assert_equal "gitorious", db_config["database"]
   end
 
-  def test_should_get_environment_specific_database_configuration
+  should "get environment specific database configuration" do
     db_config = Mutt::GitoriousConfig.new(__FILE__, "production").db_config
     db_config2 = Mutt::GitoriousConfig.new(__FILE__, "test").db_config
 

@@ -15,8 +15,8 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'test_helper'
-require 'mutt/gitorious_resolver'
+require "test_helper"
+require "mutt/gitorious_resolver"
 
 class GitoriousResolverTest < MiniTest::Spec
   def setup
@@ -26,7 +26,7 @@ class GitoriousResolverTest < MiniTest::Spec
 
   should "rescue and throw on service error" do
     def @router.resolve_url(url)
-      raise Mutt::GitoriousService::ServiceError.new('gitorious.here', '80')
+      raise Mutt::GitoriousService::ServiceError.new("gitorious.here", "80")
     end
 
     capture_stderr do

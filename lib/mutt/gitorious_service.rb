@@ -27,16 +27,16 @@ module Mutt
     end
 
     def resolve_url(url)
-      repo_url = url.split('.git').first
+      repo_url = url.split(".git").first
 
-      service_request(repo_url, 'config') do |data|
+      service_request(repo_url, "config") do |data|
         data.scan(/^real_path:(.*)$/).flatten.first
       end
     end
 
     def push_allowed_by?(user, repo_url)
       service_request(repo_url, "writable_by?username=#{user}") do |data|
-        data == 'true'
+        data == "true"
       end
     end
 

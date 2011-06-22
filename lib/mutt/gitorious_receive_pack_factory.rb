@@ -15,13 +15,12 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
+require "java"
+require "org.eclipse.jgit"
+require "org.eclipse.jgit.http.server"
 
-require 'java'
-require 'org.eclipse.jgit'
-require 'org.eclipse.jgit.http.server'
-
-java_import 'org.eclipse.jgit.transport.ReceivePack'
-java_import 'org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException'
+java_import "org.eclipse.jgit.transport.ReceivePack"
+java_import "org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException"
 
 module Mutt
   class GitoriousReceivePackFactory

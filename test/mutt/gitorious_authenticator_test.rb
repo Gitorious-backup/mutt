@@ -15,23 +15,23 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'test_helper'
-require 'mutt/gitorious_authenticator'
+require "test_helper"
+require "mutt/gitorious_authenticator"
 
-class GitoriousAuthenticatorTest < MiniTest::Unit::TestCase
+class GitoriousAuthenticatorTest < MiniTest::Spec
   def setup
     @authenticator = Mutt::GitoriousAuthenticator.new(db_config)
   end
 
-  def test_should_authenticate_valid_user
+  should "authenticate valid user" do
     assert @authenticator.authenticate("johan", "test")
   end
 
-  def test_should_not_authenticate_invalid_user
+  should "not authenticate invalid user" do
     refute @authenticator.authenticate("johan", "test!!!")
   end
 
-  def test_should_not_authenticate_non_existent_user
+  should "not authenticate non existent user" do
     refute @authenticator.authenticate("johanjohan", "test!!!")
   end
 end
