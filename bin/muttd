@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+raise "You need to run this with JRuby" unless defined?(JRUBY_VERSION)
 
 # encoding: utf-8
 #--
@@ -18,36 +19,42 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'optparse'
-require 'mutt/cli'
+require "trollop"
+require "mutt"
+require "mutt/cli"
 
-DEFAULT_PORT = '8080'
-DEFAULT_RAILS_ENV = 'production'
+opts = Trollop::options(ARGV) do
+  version "#{Mutt::VERSION} (c) 2011 Gitorious AS. Licensed under the AGPL."
+  banner <<-EOS
+Git over HTTP for Gitorious
 
-options = {}
-op = OptionParser.new do |opts|
-  opts.on('-r', '--root', 'Where is Gitorious installed on your system?') do |path|
-    options[:gitorious_root] = path
-  end
+Usage:
+       muttd [options] command
 
-  opts.on('-e', '--environment', "Which RAILS_ENV to use (default: #{DEFAULT_RAILS_ENV})") do |e|
-    options[:rails_env] = e
-  end
-    
-  opts.on('-p', '--port', "Which port to listen to (default: #{DEFAULT_PORT})") do |port|
-    options[:port] = port
-  end
-  
-  opts.on_tail('-h', '--help', 'show this message') do
-    abort opts.to_s
-  end
+Commands:
+       #{Mutt::Cli::COMMANDS.join(', ')}
+
+Options:
+EOS
+
+  opt :root, "Where is Gitorious installed on your system?", :type => :string, :required => true
+  opt :environment, "What RAILS_ENV to use", :default => "production"
+  opt :port, "Which port to listen to", :default => 8081
+  stop_on Mutt::Cli::COMMANDS
 end
 
-begin
-  command = op.parse(ARGV).first
-rescue 
-  abort op.to_s 
+cli = Mutt::Cli.new(opts)
+command = ARGV.shift
+
+if command.nil?
+  puts "Please specify a supported action: #{Mutt::Cli::COMMANDS.join(', ')}"
+  abort "Try --help for help."
 end
 
-abort op.to_s unless options[:gitorious_root]
-Mutt::Cli.new.send(command.to_sym, options)
+if !cli.respond_to?(command.to_sym)
+  puts "Unsupported action #{command}, please specify one of #{Mutt::Cli::COMMANDS.join(', ')}"
+  abort "Try --help for help."
+end
+
+require "bundler/setup"
+cli.send(command.to_sym)

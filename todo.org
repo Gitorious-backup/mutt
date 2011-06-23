@@ -11,3 +11,4 @@
 * TODO Requires JRuby >= 1.6.0 (Gemspec)
 * DONE Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
 * DONE Seems we're sending a WWW-Authenticate header with a 200 OK
+* TODO Gracefully handle port in use
