@@ -43,18 +43,27 @@ EOS
   stop_on Mutt::Cli::COMMANDS
 end
 
-cli = Mutt::Cli.new(opts)
-command = ARGV.shift
+begin
+  cli = Mutt::Cli.new(opts)
+  command = ARGV.shift
 
-if command.nil?
-  puts "Please specify a supported action: #{Mutt::Cli::COMMANDS.join(', ')}"
-  abort "Try --help for help."
+  if command.nil?
+    puts "Please specify a supported action: #{Mutt::Cli::COMMANDS.join(', ')}"
+    abort "Try --help for help."
+  end
+
+  if !cli.respond_to?(command.to_sym)
+    puts "Unsupported action #{command}, please specify one of #{Mutt::Cli::COMMANDS.join(', ')}"
+    abort "Try --help for help."
+  end
+
+  cli.send(command.to_sym)
+rescue Mutt::ConfigurationFileNotFound => err
+  $stderr.puts "Aborting: #{err.message}"
+rescue NativeException => err
+  if err.message =~ /^java\.net\.BindException/
+    abort "Address 0.0.0.0:#{opts[:port]} is already in use"
+  else
+    raise err
+  end
 end
-
-if !cli.respond_to?(command.to_sym)
-  puts "Unsupported action #{command}, please specify one of #{Mutt::Cli::COMMANDS.join(', ')}"
-  abort "Try --help for help."
-end
-
-require "bundler/setup"
-cli.send(command.to_sym)

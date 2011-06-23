@@ -16,9 +16,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "test_helper"
+require "mutt/cli"
 
 class MuttCliTest < MiniTest::Spec
-  should "eventually do awesome stuff" do
-    assert true
+  should "raise if configuration file cannot be found" do
+    assert_raises Mutt::ConfigurationFileNotFound do
+      cli = Mutt::Cli.new(:root => "/dev/null")
+    end
   end
 end
