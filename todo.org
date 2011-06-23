@@ -11,3 +11,4 @@
 ** TODO post-update: this helps users with prehistoric Git clients. May not be required
 * TODO Requires JRuby >= 1.6.0 (Gemspec)
 * TODO Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
+* TODO Seems we're sending a WWW-Authenticate header with a 200 OK
