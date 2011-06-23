@@ -35,12 +35,13 @@ module Mutt
 
     class Request
       attr_accessor :auth_type, :user_principal
-      attr_reader :auth_string, :remote_user, :query_string
+      attr_reader :auth_string, :remote_user, :query_string, :request_uri
 
       def initialize(options = {})
         @auth_string = options[:auth_string]
         @remote_user = options[:remote_user]
         @query_string = options[:query_string]
+        @request_uri = options[:request_uri]
       end
 
       def get_header(name)

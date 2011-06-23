@@ -35,6 +35,12 @@ class GitBasicAuthHandlerTest < MiniTest::Spec
       assert @handler.authentication_required?(request)
     end
 
+    should "require authentication for all aspects of push" do
+      request = Mutt::Test::Request.new(:request_uri => "/gitorious/mainline.git/git-receive-pack",
+                                        :query_string => nil)
+      assert @handler.authentication_required?(request)
+    end
+
     should "authenticate when authentication is required" do
       def @handler.authenticate(request, response)
         @authenticated = true

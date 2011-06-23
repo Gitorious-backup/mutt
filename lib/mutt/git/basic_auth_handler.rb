@@ -21,7 +21,12 @@ module Mutt
   module Git
     class BasicAuthHandler < BasicAuth::Handler
       def authentication_required?(request)
-        request.query_string =~ /service=git-receive-pack/
+        rpc_service_type(request) == "git-receive-pack"
+      end
+
+      def rpc_service_type(request)
+        service = (request.query_string || "").scan(/service=([a-z\-]+)/).flatten.first
+        service.nil? ? request.request_uri.to_s.split("/").last : service
       end
     end
   end
