@@ -3,12 +3,11 @@
 ** TODO No Gitorious running (warn if Gitorious can not be reached)
 ** TODO No GITORIOUS_ROOT
 ** TODO (No JETTY_PORT)
-**
 * DONE Don't authenticate non-push activity
 * TODO Support the Gitorious hooks [0/3]
 ** TODO pre-receive: checks force-push etc
 ** TODO post-receive: pushes messages on the queue
 ** TODO post-update: this helps users with prehistoric Git clients. May not be required
 * TODO Requires JRuby >= 1.6.0 (Gemspec)
-* TODO Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
-* TODO Seems we're sending a WWW-Authenticate header with a 200 OK
+* DONE Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
+* DONE Seems we're sending a WWW-Authenticate header with a 200 OK
