@@ -32,4 +32,12 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- test/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
   s.require_paths = ["lib", "vendor"]
+
+  s.add_dependency "activerecord-jdbcmysql-adapter", "~> 1.1"
+  s.add_dependency "activerecord", "~> 3.0"
+  s.add_dependency "trollop", "~> 1.16"
+
+  s.add_development_dependency "minitest", "~> 2.0"
+  s.add_development_dependency "mini_shoulda", "~> 0.2"
+  s.add_development_dependency "rake", "~> 0.9"
 end

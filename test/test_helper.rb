@@ -17,6 +17,8 @@
 #++
 require "rubygems"
 require "bundler/setup"
+require "minitest/autorun"
+require "mini_shoulda"
 require "stringio"
 require "yaml"
 
