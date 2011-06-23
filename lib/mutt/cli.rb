@@ -24,10 +24,12 @@ module Mutt
     attr_reader :configuration, :port
     COMMANDS = %w[run start stop]
 
-    def initialize(options)
+    def initialize(options = {})
       path = File.join(options[:root], "config", "gitorious.yml")
       @configuration = Mutt::Gitorious::Config.new(path, options[:environment])
       @port = options[:port]
+    rescue Errno::ENOENT => err
+      raise ConfigurationFileNotFound.new(path)
     end
 
     def run
@@ -52,6 +54,12 @@ module Mutt
     def stop
       #  puts "Cleaning up"
       #  File.unlink(PIDFILE)
+    end
+  end
+
+  class ConfigurationFileNotFound < StandardError
+    def initialize(file)
+      super("Configuration file #{file} not found")
     end
   end
 end
