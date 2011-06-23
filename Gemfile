@@ -1,10 +1,11 @@
-source 'http://rubygems.org'
+source "http://rubygems.org"
 
-gem 'rake'
-gem 'activerecord-jdbcmysql-adapter'
-gem 'activerecord', '~>3.0'
+gem "rake"
+gem "activerecord-jdbcmysql-adapter"
+gem "activerecord", "~>3.0"
+gem "trollop"
 
 group :test do
-  gem 'mini_shoulda'
-  gem 'minitest', '~> 2.0.2', :require => 'minitest/autorun'
+  gem "mini_shoulda"
+  gem "minitest", "~> 2.0.2", :require => "minitest/autorun"
 end
