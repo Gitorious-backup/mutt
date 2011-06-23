@@ -13,13 +13,9 @@ require "rubygems"
 require "bundler/setup"
 
 require 'mutt/gitorious/config'
-require 'mutt/gitorious/service'
-require 'mutt/gitorious/resolver'
 require 'mutt/gitorious/servlet'
-require 'mutt/basic_auth_handler'
+require 'mutt/git/basic_auth_handler'
 require 'mutt/gitorious/authenticator'
-require 'mutt/gitorious/receive_pack_factory'
-require 'mutt/gitorious/repository_router'
 
 java_import 'org.eclipse.jgit.http.server.GitServlet'
 
@@ -39,7 +35,7 @@ holder = org.mortbay.jetty.servlet.ServletHolder.new(servlet)
 # Attach GitoriousServlet to anything
 root.add_servlet(holder, '/*')
 
-root.security_handler = Mutt::BasicAuth::Handler.new(Mutt::Gitorious::Authenticator.new(configuration.db_config))
+root.security_handler = Mutt::Git::BasicAuthHandler.new(Mutt::Gitorious::Authenticator.new(configuration.db_config), "Gitorious")
 
 server.start
 

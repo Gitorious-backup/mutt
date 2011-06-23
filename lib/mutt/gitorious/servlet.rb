@@ -15,23 +15,26 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-require 'java'
-require 'org.eclipse.jgit'
-java_import 'org.eclipse.jgit.http.server.GitServlet'
+require "java"
+require "org.eclipse.jgit"
+require "mutt/gitorious/service"
+require "mutt/gitorious/repository_router"
+require "mutt/gitorious/resolver"
+require "mutt/gitorious/receive_pack_factory"
 
+java_import "org.eclipse.jgit.http.server.GitServlet"
 
 module Mutt
   module Gitorious
     class Servlet < GitServlet
       attr_reader :configuration
-      
+
       def initialize(configuration)
         super()
         @configuration = configuration
       end
-      
+
       def init(servlet_config)
-        path = File.join(ENV['GITORIOUS_ROOT'], 'config', 'gitorious.yml')
         service = Mutt::Gitorious::Service.new(configuration.host, configuration.port)
         router = Mutt::Gitorious::RepositoryRouter.new(service, configuration.repo_root)
         resolver = Mutt::Gitorious::Resolver.new(router)
