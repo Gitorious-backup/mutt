@@ -1,4 +1,5 @@
 require "rake/testtask"
+require "bundler/gem_tasks"
 
 Rake::TestTask.new("test") do |test|
   test.libs << "test"
@@ -7,7 +8,7 @@ Rake::TestTask.new("test") do |test|
   test.verbose = true
 
   if !ENV["GITORIOUS_ROOT"]
-    abort "You need to define GITORIOUS_ROOT to run mutt tests"
+    $stderr.puts "You need to define GITORIOUS_ROOT to run mutt tests"
   end
 end
 
