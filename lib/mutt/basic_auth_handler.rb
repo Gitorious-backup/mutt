@@ -33,7 +33,7 @@ module Mutt
       end
 
       def handle(target, request, response, dispatch)
-        authenticate(request, response)
+        authenticate(request, response) if authentication_required?(request)
         handler.handle(target, request, response, dispatch) if handler
       end
 
@@ -51,6 +51,10 @@ module Mutt
       def set_user_principal(request, user)
         request.auth_type = org.mortbay.jetty.security.Constraint::__BASIC_AUTH
         request.user_principal = user
+      end
+
+      def authentication_required?(request)
+        true
       end
     end
 

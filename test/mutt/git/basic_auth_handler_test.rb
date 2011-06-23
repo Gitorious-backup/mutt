@@ -31,7 +31,7 @@ class GitBasicAuthHandlerTest < MiniTest::Spec
     end
 
     should "require authentication for push access" do
-      request = Mutt::Test::Request.new(:query_string => "?service=git-receive-pack")
+      request = Mutt::Test::Request.new(:query_string => "service=git-receive-pack")
       assert @handler.authentication_required?(request)
     end
 
@@ -42,7 +42,7 @@ class GitBasicAuthHandlerTest < MiniTest::Spec
       def @handler.authenticated?
         @authenticated
       end
-      request = Mutt::Test::Request.new(:query_string => "?service=git-receive-pack")
+      request = Mutt::Test::Request.new(:query_string => "service=git-receive-pack")
       @handler.handle(nil, request, nil, nil)
       assert @handler.authenticated?
     end

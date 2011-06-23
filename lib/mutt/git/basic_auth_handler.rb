@@ -20,13 +20,8 @@ require "mutt/basic_auth_handler"
 module Mutt
   module Git
     class BasicAuthHandler < BasicAuth::Handler
-      def handle(target, request, response, dispatch)
-        return unless authentication_required?(request)
-        super
-      end
-
       def authentication_required?(request)
-        request.query_string =~ /\?service=git-receive-pack/
+        request.query_string =~ /service=git-receive-pack/
       end
     end
   end
