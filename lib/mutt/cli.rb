@@ -22,7 +22,6 @@ require "mutt/gitorious/server"
 module Mutt
   class Cli
     attr_reader :configuration, :port
-    COMMANDS = %w[run start stop]
 
     def initialize(options = {})
       path = File.join(options[:root], "config", "gitorious.yml")
@@ -34,26 +33,6 @@ module Mutt
 
     def run
       Mutt::Gitorious::Server.new(configuration).run(port)
-    end
-
-    def start
-      Mutt::Gitorious::Server.new(configuration).run(port)
-
-      # PIDFILE = File.join(File.dirname(__FILE__), "pids", "git_http.pid")
-      # File.open(PIDFILE,"w") {|f| f.write(Process.pid.to_s)}
-      #trap ("SIGINT") {
-      # stop
-      #  exit!
-      #}
-      #trap ("SIGTERM") {
-      #  stop
-      #  exit!
-      #}
-    end
-
-    def stop
-      #  puts "Cleaning up"
-      #  File.unlink(PIDFILE)
     end
   end
 

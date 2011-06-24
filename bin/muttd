@@ -29,10 +29,7 @@ opts = Trollop::options(ARGV) do
 Git over HTTP for Gitorious
 
 Usage:
-       muttd [options] command
-
-Commands:
-       #{Mutt::Cli::COMMANDS.join(', ')}
+       muttd [options]
 
 Options:
 EOS
@@ -40,24 +37,11 @@ EOS
   opt :root, "Where is Gitorious installed on your system?", :type => :string, :required => true
   opt :environment, "What RAILS_ENV to use", :default => "production"
   opt :port, "Which port to listen to", :default => 8081
-  stop_on Mutt::Cli::COMMANDS
 end
 
 begin
   cli = Mutt::Cli.new(opts)
-  command = ARGV.shift
-
-  if command.nil?
-    puts "Please specify a supported action: #{Mutt::Cli::COMMANDS.join(', ')}"
-    abort "Try --help for help."
-  end
-
-  if !cli.respond_to?(command.to_sym)
-    puts "Unsupported action #{command}, please specify one of #{Mutt::Cli::COMMANDS.join(', ')}"
-    abort "Try --help for help."
-  end
-
-  cli.send(command.to_sym)
+  cli.run
 rescue Mutt::ConfigurationFileNotFound => err
   $stderr.puts "Aborting: #{err.message}"
 rescue NativeException => err
