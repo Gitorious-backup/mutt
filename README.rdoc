@@ -1,0 +1,36 @@
+Mutt - A cross breed (and also a git)
+=====================================
+
+Git Smart HTTP(S) for Gitorious.
+
+Mutt leans on JGit (and thus runs on JRuby) to provide push/pull over HTTP(S)
+for Gitorious installations. It runs as a standalone daemon, and reads your 
+gitorious.yml and database.yml to behave appropriately and authenticate users.
+
+Mutt supports:
+- Anonymous fetch/pull
+- Authenticated push
+- Authenticated fetch/pull/ls-remote when Gitorious is in private mode
+
+Running Mutt
+============
+
+* Install Jruby. If you're running rvm, this is as easy as `rvm install jruby`
+* Install Mutt as a gem: `gem install mutt`
+* Install and start Gitorious
+* Run the Mutt daemon: `muttd --root /path/to/gitorious`
+* Try it: `git ls-remote http://localhost:8081/gitorious/mainline.git`
+
+Developers
+==========
+
+If you're looking to work on the Mutt code (fix bugs, add features or whatever),
+fetch the source and install Bundler to pull down dependencies:
+
+    git clone git://gitorious.org/gitorious/mutt.git
+    cd mutt
+    gem install bundler
+    bundle install
+
+Then run the tests:
+    GITORIOUS_ROOT=/path/to/gitorious rake

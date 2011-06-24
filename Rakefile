@@ -1,4 +1,5 @@
 require "rake/testtask"
+require "rdoc/task"
 require "bundler/gem_tasks"
 
 Rake::TestTask.new("test") do |test|
@@ -12,4 +13,15 @@ Rake::TestTask.new("test") do |test|
   end
 end
 
+Rake::RDocTask.new do |rd|
+  rd.main = "README.rdoc"
+  rd.rdoc_files.include("README.rdoc", "lib/**/*.rb")
+end
+
 task :default => :test
+
+desc "Clean out generated files and directories"
+task :clean do
+  `rm -fr {pkg,html}`
+end
+ 

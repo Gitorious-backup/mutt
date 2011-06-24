@@ -40,4 +40,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "minitest", "~> 2.0"
   s.add_development_dependency "mini_shoulda", "~> 0.2"
   s.add_development_dependency "rake", "~> 0.9"
+  s.add_development_dependency "rdoc"
 end
