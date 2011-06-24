@@ -1,8 +1,8 @@
-* TODO Error handling [0/4]
-** TODO No JRuby
-** TODO No Gitorious running (warn if Gitorious can not be reached)
-** TODO No GITORIOUS_ROOT
-** TODO (No JETTY_PORT)
+* DONE Error handling [4/4]
+** DONE No JRuby
+** DONE No Gitorious running (warn if Gitorious can not be reached)
+** DONE No GITORIOUS_ROOT
+** DONE (No JETTY_PORT)
 * DONE Don't authenticate non-push activity
 * TODO Support the Gitorious hooks [0/3]
 ** TODO pre-receive: checks force-push etc
@@ -11,4 +11,7 @@
 * TODO Requires JRuby >= 1.6.0 (Gemspec)
 * DONE Refactor: GitoriousXXX -> Gitorious::XXX, including directory structure
 * DONE Seems we're sending a WWW-Authenticate header with a 200 OK
-* TODO Gracefully handle port in use
+* DONE Gracefully handle port in use
+* TODO Respect user's choice of disabling push
+* TODO Daemonize
+* TODO If gitorious.yml specifies private_mode, we might need to require authentication for all traffic?
