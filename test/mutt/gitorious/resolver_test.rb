@@ -22,6 +22,10 @@ class GitoriousResolverTest < MiniTest::Spec
   def setup
     @router = Object.new
     @resolver = Mutt::Gitorious::Resolver.new(@router)
+
+    def @router.resolve_url(url)
+      "/tmp/repositories/aaa/bbb/ccc.git"
+    end
   end
 
   should "rescue and throw on service error" do
@@ -31,7 +35,36 @@ class GitoriousResolverTest < MiniTest::Spec
 
     capture_stderr do
       assert_raises RepositoryNotFoundException do
-        @resolver.open(nil, nil)
+        @resolver.open(Mutt::Test::Request.new(:user_principal => "cjohansen"), nil)
+      end
+    end
+  end
+
+  context "private mode" do
+    setup do
+      @resolver.public_mode = false
+    end
+
+    should "raise if user is not authenticated" do
+      capture_stderr do
+        assert_raises ServiceNotAuthorizedException do
+          @resolver.open(Mutt::Test::Request.new(:user_principal => nil), nil)
+        end
+      end
+    end
+  end
+
+  context "public mode" do
+    setup do
+      @resolver.public_mode = true
+    end
+
+    should "not raise if user is not authenticated" do
+      # We'll get a NativeException when JGit tries to peek inside the
+      # non-existent repository. What we want to know here is that we
+      # don't see a ServiceNotAuthorizedException
+      assert_raises NativeException do
+        @resolver.open(Mutt::Test::Request.new(:user_principal => nil), nil)
       end
     end
   end

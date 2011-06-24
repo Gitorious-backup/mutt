@@ -36,7 +36,7 @@ module Mutt
         user = request.remote_user
         repo_url = router.resolve_path(repository.directory.absolute_path)
 
-        if user.nil? || !service.push_allowed_by?(user, repo_url)
+        if !service.push_allowed_by?(user, repo_url)
           raise ServiceNotAuthorizedException.new
         else
           ReceivePack.new(repository)

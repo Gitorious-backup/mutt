@@ -47,9 +47,10 @@ module Mutt
         service = Mutt::Gitorious::Service.new(config.host, config.port)
         router = Mutt::Gitorious::RepositoryRouter.new(service, config.repo_root)
         resolver = Mutt::Gitorious::Resolver.new(router)
+        resolver.public_mode = config.public_mode?
         self.repository_resolver = resolver
-        self.receive_pack_factory =
-          pull_only? ? nil : ReceivePackFactory.new(service, router)
+        rpf = pull_only? ? nil : ReceivePackFactory.new(service, router)
+        self.receive_pack_factory = rpf
       end
 
       def pull_only?

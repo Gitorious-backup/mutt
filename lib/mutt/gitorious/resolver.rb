@@ -23,22 +23,33 @@ require "mutt/gitorious/service"
 java_import "org.eclipse.jgit.util.FS"
 java_import "org.eclipse.jgit.lib.RepositoryCache"
 java_import "org.eclipse.jgit.errors.RepositoryNotFoundException"
+java_import "org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException"
 
 module Mutt
   module Gitorious
     class Resolver
       attr_reader :router
+      attr_writer :public_mode
 
       def initialize(router)
         @router = router
+        @public_mode = true
       end
 
       def open(request, name)
+        if !public_mode? && request.user_principal.nil?
+          raise ServiceNotAuthorizedException.new
+        end
+
         git_dir = java.io.File.new(router.resolve_url(name))
         RepositoryCache.open(RepositoryCache::FileKey.lenient(git_dir, FS::DETECTED), true)
       rescue Mutt::Gitorious::Service::ServiceError => e
         log "Unable to map repository at #{name}, error is '#{e.message.strip}'"
         raise RepositoryNotFoundException.new(e.message)
+      end
+
+      def public_mode?
+        @public_mode
       end
 
       def log(message)

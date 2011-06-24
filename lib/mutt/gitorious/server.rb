@@ -30,16 +30,16 @@ require "mutt/gitorious/authenticator"
 module Mutt
   module Gitorious
     class Server
-      attr_reader :configuration
+      attr_reader :config
 
-      def initialize(configuration)
-        @configuration = configuration
+      def initialize(config)
+        @config = config
       end
 
       def run(port, options = {})
         server = org.mortbay.jetty.Server.new(port)
         root = org.mortbay.jetty.servlet.Context.new(server, "/", org.mortbay.jetty.servlet.Context::SESSIONS)
-        servlet = Mutt::Gitorious::Servlet.new(configuration)
+        servlet = Mutt::Gitorious::Servlet.new(config)
         servlet.pull_only = options[:pull_only]
         holder = org.mortbay.jetty.servlet.ServletHolder.new(servlet)
 
@@ -50,13 +50,13 @@ module Mutt
       end
 
       def configure_security(context, options)
-        return if options[:pull_only] && configuration.public_mode?
+        return if options[:pull_only] && config.public_mode?
         context.security_handler = security_implementation
       end
 
       def security_implementation
-        authenticator = Gitorious::Authenticator.new(configuration.db_config)
-        klass = configuration.public_mode? ? Git::BasicAuthHandler : BasicAuth::Handler
+        authenticator = Gitorious::Authenticator.new(config.db_config)
+        klass = config.public_mode? ? Git::BasicAuthHandler : BasicAuth::Handler
         klass.new(authenticator, "Gitorious")
       end
     end

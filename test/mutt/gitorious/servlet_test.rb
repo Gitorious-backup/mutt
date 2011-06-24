@@ -20,22 +20,39 @@ require "mutt/gitorious/config"
 require "mutt/gitorious/servlet"
 
 class GitoriousServletTest < MiniTest::Spec
-  setup do
-    @config = Mutt::Gitorious::Config.new({})
-    @servlet = Mutt::Gitorious::Servlet.new(@config)
-    def @servlet.receive_pack_factory=(rpf); @rpf = rpf; end
-    def @servlet.receive_pack_factory; @rpf; end
-    @servlet.receive_pack_factory = :default
+  def create_servlet_with_config(config_hash = {})
+    config = Mutt::Gitorious::Config.new(config_hash)
+    servlet = Mutt::Gitorious::Servlet.new(config)
+    def servlet.receive_pack_factory=(rpf); @rpf = rpf; end
+    def servlet.receive_pack_factory; @rpf; end
+    def servlet.repository_resolver=(rs); @rs = rs; end
+    def servlet.repository_resolver; @rs; end
+    servlet.receive_pack_factory = :default
+    servlet
   end
 
   should "have a receive pack factory by default" do
-    @servlet.configure
-    refute_nil @servlet.receive_pack_factory
+    servlet = create_servlet_with_config
+    servlet.configure
+    refute_nil servlet.receive_pack_factory
   end
 
   should "support pull-only configuration" do
-    @servlet.pull_only = true
-    @servlet.configure
-    assert_nil @servlet.receive_pack_factory
+    servlet = create_servlet_with_config
+    servlet.pull_only = true
+    servlet.configure
+    assert_nil servlet.receive_pack_factory
+  end
+
+  should "configure resolver for private mode" do
+    servlet = create_servlet_with_config({ "public_mode" => false })
+    servlet.configure
+    refute servlet.repository_resolver.public_mode?
+  end
+
+  should "configure resolver for public mode" do
+    servlet = create_servlet_with_config({ "public_mode" => true })
+    servlet.configure
+    assert servlet.repository_resolver.public_mode?
   end
 end

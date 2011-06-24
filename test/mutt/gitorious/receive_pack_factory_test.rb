@@ -25,15 +25,6 @@ class GitoriousReceivePackFactoryTest < MiniTest::Spec
     def @router.resolve_path(url); "aaa/bbb/ccc.git"; end
   end
 
-  should "raise not authorized for anonymous user" do
-    request = Mutt::Test::Request.new
-    factory = Mutt::Gitorious::ReceivePackFactory.new(nil, @router)
-
-    assert_raises ServiceNotAuthorizedException do
-      factory.create(request, @repository)
-    end
-  end
-
   should "raise if user is not authorized to push" do
     service = Object.new
     def service.push_allowed_by?(repo, user); false; end
