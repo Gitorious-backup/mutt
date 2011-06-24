@@ -21,12 +21,16 @@ module Mutt
   module Gitorious
     class Config
       attr_reader :configuration, :config_path, :environment
+      attr_writer :allow_push
 
-      def initialize(file, environment = "production")
-        raise Errno::ENOENT.new("gitorious.yml not found") unless File.file?(file)
+      def initialize(config, gitorious_root = nil, environment = "production")
         @environment = environment
-        @config_path = File.dirname(file)
-        @configuration = YAML::load_file(file)[environment]
+        @config_path = gitorious_root
+        @configuration = config || {}
+      def self.from_file(file, environment = "production")
+        raise Errno::ENOENT.new("gitorious.yml not found") unless File.file?(file)
+        new(YAML::load_file(file)[environment], File.dirname(file), environment)
+      end
       end
 
       def host

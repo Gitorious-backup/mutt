@@ -25,7 +25,7 @@ module Mutt
 
     def initialize(options = {})
       path = File.join(options[:root], "config", "gitorious.yml")
-      @configuration = Mutt::Gitorious::Config.new(path, options[:environment])
+      @configuration = Mutt::Gitorious::Config.from_file(path, options[:environment])
       @port = options[:port]
     rescue Errno::ENOENT => err
       raise ConfigurationFileNotFound.new(path)

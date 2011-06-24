@@ -53,7 +53,7 @@ end
 
 class GitoriousConfigTest < MiniTest::Spec
   def setup
-    @config = Mutt::Gitorious::Config.new(__FILE__)
+    @config = Mutt::Gitorious::Config.from_file(__FILE__)
   end
 
   should "load host" do
@@ -69,13 +69,13 @@ class GitoriousConfigTest < MiniTest::Spec
   end
 
   should "respect rails env" do
-    config = Mutt::Gitorious::Config.new(__FILE__, "development")
+    config = Mutt::Gitorious::Config.from_file(__FILE__, "development")
     assert_equal "gitorious.there", config.host
   end
 
   should "raise on_missing config file" do
     assert_raises Errno::ENOENT do
-      config = Mutt::Gitorious::Config.new(__FILE__ + ".invalid")
+      config = Mutt::Gitorious::Config.from_file(__FILE__ + ".invalid")
     end
   end
 
@@ -87,8 +87,8 @@ class GitoriousConfigTest < MiniTest::Spec
   end
 
   should "get environment specific database configuration" do
-    db_config = Mutt::Gitorious::Config.new(__FILE__, "production").db_config
-    db_config2 = Mutt::Gitorious::Config.new(__FILE__, "test").db_config
+    db_config = Mutt::Gitorious::Config.from_file(__FILE__, "production").db_config
+    db_config2 = Mutt::Gitorious::Config.from_file(__FILE__, "test").db_config
 
     refute_equal db_config["database"], db_config2["database"]
   end
