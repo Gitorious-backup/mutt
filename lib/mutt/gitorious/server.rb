@@ -26,8 +26,6 @@ require "mutt/gitorious/servlet"
 require "mutt/git/basic_auth_handler"
 require "mutt/gitorious/authenticator"
 
-java_import "org.eclipse.jgit.http.server.GitServlet"
-
 module Mutt
   module Gitorious
     class Server
@@ -37,11 +35,12 @@ module Mutt
         @configuration = configuration
       end
 
-      def run(port)
+      def run(port, pull_only)
         # Embedding Jetty
         server = org.mortbay.jetty.Server.new(port)
         root = org.mortbay.jetty.servlet.Context.new(server, "/", org.mortbay.jetty.servlet.Context::SESSIONS)
         servlet = Mutt::Gitorious::Servlet.new(configuration)
+        servlet.pull_only = pull_only
         holder = org.mortbay.jetty.servlet.ServletHolder.new(servlet)
 
         # Attach GitoriousServlet to anything

@@ -15,31 +15,26 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
-
+require "test_helper"
 require "mutt/gitorious/config"
-require "mutt/gitorious/server"
+require "mutt/gitorious/servlet"
 
-module Mutt
-  class Cli
-    attr_reader :configuration, :port, :pull_only
-
-    def initialize(options = {})
-      path = File.join(options[:root], "config", "gitorious.yml")
-      @configuration = Mutt::Gitorious::Config.from_file(path, options[:environment])
-      @port = options[:port]
-      @pull_only = options[:pull_only]
-    rescue Errno::ENOENT => err
-      raise ConfigurationFileNotFound.new(path)
-    end
-
-    def run
-      server = Mutt::Gitorious::Server.new(configuration).run(port, pull_only)
-    end
+class GitoriousServletTest < MiniTest::Spec
+  setup do
+    @config = Mutt::Gitorious::Config.new({})
+    @servlet = Mutt::Gitorious::Servlet.new(@config)
+    def @servlet.receive_pack_factory=(rpf); @rpf = rpf; end
+    def @servlet.receive_pack_factory; @rpf; end
   end
 
-  class ConfigurationFileNotFound < StandardError
-    def initialize(file)
-      super("Configuration file #{file} not found")
-    end
+  should "have a receive pack factory by default" do
+    @servlet.configure
+    refute_nil @servlet.receive_pack_factory
+  end
+
+  should "support pull-only configuration" do
+    @servlet.pull_only = true
+    @servlet.configure
+    assert_nil @servlet.receive_pack_factory
   end
 end

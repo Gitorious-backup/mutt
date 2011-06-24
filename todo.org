@@ -13,5 +13,5 @@
 * DONE Seems we're sending a WWW-Authenticate header with a 200 OK
 * DONE Gracefully handle port in use
 * TODO Respect user's choice of disabling push
-* TODO Daemonize
+* TODO Daemonize (provide docs)
 * TODO If gitorious.yml specifies private_mode, we might need to require authentication for all traffic?

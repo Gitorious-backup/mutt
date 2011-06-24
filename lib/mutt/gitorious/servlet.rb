@@ -16,7 +16,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "java"
+require "servlet-api"
 require "org.eclipse.jgit"
+require "org.eclipse.jgit.http.server"
 require "mutt/gitorious/service"
 require "mutt/gitorious/repository_router"
 require "mutt/gitorious/resolver"
@@ -28,19 +30,31 @@ module Mutt
   module Gitorious
     class Servlet < GitServlet
       attr_reader :configuration
+      attr_writer :pull_only
 
       def initialize(configuration)
         super()
         @configuration = configuration
+        @pull_only = false
       end
 
       def init(servlet_config)
+        configure
+        super(servlet_config)
+      end
+
+      def configure
         service = Mutt::Gitorious::Service.new(configuration.host, configuration.port)
         router = Mutt::Gitorious::RepositoryRouter.new(service, configuration.repo_root)
         resolver = Mutt::Gitorious::Resolver.new(router)
         self.repository_resolver = resolver
-        self.receive_pack_factory = Mutt::Gitorious::ReceivePackFactory.new(service, router)
-        super
+        unless pull_only?
+          self.receive_pack_factory = Mutt::Gitorious::ReceivePackFactory.new(service, router)
+        end
+      end
+
+      def pull_only?
+        @pull_only
       end
     end
   end

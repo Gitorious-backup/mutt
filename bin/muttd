@@ -37,7 +37,7 @@ EOS
   opt :root, "Where is Gitorious installed on your system?", :type => :string, :required => true
   opt :environment, "What RAILS_ENV to use", :default => "production"
   opt :port, "Which port to listen to", :default => 8081
-  opt :allow_push, "Allow push access", :default => true
+  opt :pull_only, "Disallow HTTP push - only support read actions", :default => false
 end
 
 begin
