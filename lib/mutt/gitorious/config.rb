@@ -45,6 +45,11 @@ module Mutt
         @repo_root ||= configuration["repository_base_path"]
       end
 
+      def public_mode?
+        @public_mode = configuration["public_mode"] if !defined?(@public_mode)
+        @public_mode
+      end
+
       def db_config
         if !defined?(@db_config)
           yaml = YAML::load_file(File.join(config_path, "database.yml"))

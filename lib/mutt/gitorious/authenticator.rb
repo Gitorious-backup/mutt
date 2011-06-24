@@ -20,17 +20,26 @@ require "active_record"
 module Mutt
   module Gitorious
     class Authenticator
+      attr_reader :db_config
+
       class User < ActiveRecord::Base
       end
 
       def initialize(db_config)
-        ActiveRecord::Base.establish_connection(db_config)
+        @db_config = db_config
       end
 
       def authenticate(username, password)
+        connect
         !User.find(:first,
                    :conditions => ["login = ? and crypted_password = sha1(concat('--', salt, '--', ?, '--'))",
                                    username, password]).nil?
+      end
+
+      def connect
+        return if @connected
+        ActiveRecord::Base.establish_connection(db_config)
+        @connected = true
       end
     end
   end

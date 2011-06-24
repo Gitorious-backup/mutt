@@ -33,7 +33,7 @@ module Mutt
     end
 
     def run
-      server = Mutt::Gitorious::Server.new(configuration).run(port, pull_only)
+      server = Mutt::Gitorious::Server.new(configuration).run(port, :pull_only => pull_only)
     end
   end
 

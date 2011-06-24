@@ -23,6 +23,7 @@ require "jetty-util"
 require "jetty"
 
 require "mutt/gitorious/servlet"
+require "mutt/basic_auth_handler"
 require "mutt/git/basic_auth_handler"
 require "mutt/gitorious/authenticator"
 
@@ -35,20 +36,28 @@ module Mutt
         @configuration = configuration
       end
 
-      def run(port, pull_only)
-        # Embedding Jetty
+      def run(port, options = {})
         server = org.mortbay.jetty.Server.new(port)
         root = org.mortbay.jetty.servlet.Context.new(server, "/", org.mortbay.jetty.servlet.Context::SESSIONS)
         servlet = Mutt::Gitorious::Servlet.new(configuration)
-        servlet.pull_only = pull_only
+        servlet.pull_only = options[:pull_only]
         holder = org.mortbay.jetty.servlet.ServletHolder.new(servlet)
 
-        # Attach GitoriousServlet to anything
         root.add_servlet(holder, "/*")
-
-        root.security_handler = Git::BasicAuthHandler.new(Gitorious::Authenticator.new(configuration.db_config), "Gitorious")
+        configure_security(root, options)
 
         server.start
+      end
+
+      def configure_security(context, options)
+        return if options[:pull_only] && configuration.public_mode?
+        context.security_handler = security_implementation
+      end
+
+      def security_implementation
+        authenticator = Gitorious::Authenticator.new(configuration.db_config)
+        klass = configuration.public_mode? ? Git::BasicAuthHandler : BasicAuth::Handler
+        klass.new(authenticator, "Gitorious")
       end
     end
   end
