@@ -25,6 +25,7 @@ class GitoriousServletTest < MiniTest::Spec
     @servlet = Mutt::Gitorious::Servlet.new(@config)
     def @servlet.receive_pack_factory=(rpf); @rpf = rpf; end
     def @servlet.receive_pack_factory; @rpf; end
+    @servlet.receive_pack_factory = :default
   end
 
   should "have a receive pack factory by default" do

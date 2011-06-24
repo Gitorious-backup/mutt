@@ -29,12 +29,12 @@ java_import "org.eclipse.jgit.http.server.GitServlet"
 module Mutt
   module Gitorious
     class Servlet < GitServlet
-      attr_reader :configuration
+      attr_reader :config
       attr_writer :pull_only
 
-      def initialize(configuration)
+      def initialize(config)
         super()
-        @configuration = configuration
+        @config = config
         @pull_only = false
       end
 
@@ -44,13 +44,12 @@ module Mutt
       end
 
       def configure
-        service = Mutt::Gitorious::Service.new(configuration.host, configuration.port)
-        router = Mutt::Gitorious::RepositoryRouter.new(service, configuration.repo_root)
+        service = Mutt::Gitorious::Service.new(config.host, config.port)
+        router = Mutt::Gitorious::RepositoryRouter.new(service, config.repo_root)
         resolver = Mutt::Gitorious::Resolver.new(router)
         self.repository_resolver = resolver
-        unless pull_only?
-          self.receive_pack_factory = Mutt::Gitorious::ReceivePackFactory.new(service, router)
-        end
+        self.receive_pack_factory =
+          pull_only? ? nil : ReceivePackFactory.new(service, router)
       end
 
       def pull_only?
