@@ -19,6 +19,7 @@ require "java"
 require "org.eclipse.jgit"
 require "org.eclipse.jgit.http.server"
 require "open-uri"
+require "mutt/gitorious/pre_receive_hook"
 require "gitorious_hooks/pre_receive_guard"
 require "gitorious_hooks/pre_receive_result"
 
@@ -26,46 +27,6 @@ java_import "org.eclipse.jgit.transport.ReceivePack"
 java_import "org.eclipse.jgit.http.server.resolver.ServiceNotAuthorizedException"
 
 module Mutt
-  class Command
-    def initialize(jgit_command)
-      @jgit_command = jgit_command
-    end
-
-    def merge_request?
-      false
-    end
-
-    def action_delete?
-      @jgit_command.type == org.eclipse.jgit.transport.ReceiveCommand::Type::DELETE
-    end
-
-    def non_fast_forward?
-      @jgit_command.type == org.eclipse.jgit.transport.ReceiveCommand::Type::UPDATE_NONFASTFORWARD
-    end
-
-    def ref
-      @jgit_command.ref_name
-    end
-  end
-  
-  class H
-    def on_pre_receive(receive_pack, commands)
-      commands.each do |cmd|
-        c = Command.new(cmd)
-        guard = ::Gitorious::PreReceiveGuard.new(c, {
-            :is_local => false,
-            :writable_by_url => "http://gitorious.here:3000/gitorioux/gitorioux/writable_by?username=mariuz",
-            :deny_nonfastforward => true
-          })
-        result = guard.result
-        if result.allow?
-        else
-          receive_pack.send_error("Oh no you don't (got a #{result.class.name} back")
-        end
-      end
-    end
-  end
-  
   module Gitorious
     class ReceivePackFactory
       attr_reader :service, :router
@@ -83,7 +44,7 @@ module Mutt
           raise ServiceNotAuthorizedException.new
         else
           result = ReceivePack.new(repository)
-          result.pre_receive_hook = H.new
+          result.pre_receive_hook = PreReceiveHook.new
           result
         end
       end

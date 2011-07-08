@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_dependency "activerecord-jdbcmysql-adapter", "~> 1.1"
   s.add_dependency "activerecord", "~> 3.0"
   s.add_dependency "trollop", "~> 1.16"
-  s.add_dependency "gitorious-hooks", "~>0.1"
+  s.add_dependency "gitorious-hooks", "~>0.1.1"
 
   s.add_development_dependency "minitest", "~> 2.0"
   s.add_development_dependency "mini_shoulda", "~> 0.2"
