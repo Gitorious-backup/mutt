@@ -19,20 +19,10 @@ require "test_helper"
 require "mutt/gitorious/repository_router"
 require "mutt/gitorious/service"
 
-module Mutt
-  class FakeService
-    attr_accessor :path
-
-    def resolve_url(url)
-      path
-    end
-  end
-end
-
 class GitoriousRepositoryRouterTest < MiniTest::Spec
   def setup
     repo_root = "/tmp/repositories"
-    @service = Mutt::FakeService.new
+    @service = Mutt::Test::FakeService.new
     @router = Mutt::Gitorious::RepositoryRouter.new(@service, repo_root)
   end
 

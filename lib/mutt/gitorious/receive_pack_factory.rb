@@ -44,7 +44,11 @@ module Mutt
           raise ServiceNotAuthorizedException.new
         else
           result = ReceivePack.new(repository)
-          result.pre_receive_hook = PreReceiveHook.new
+          result.pre_receive_hook = PreReceiveHook.new({
+              :repository_url => repo_url,
+              :user => user,
+              :host => "#{service.host}:#{service.port}"
+            })
           result
         end
       end

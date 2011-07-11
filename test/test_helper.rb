@@ -35,6 +35,15 @@ module Mutt
       @config
     end
 
+    class FakeService
+      attr_accessor :path
+      
+      def resolve_url(url)
+        path
+      end
+    end
+
+
     class Request
       attr_accessor :auth_type, :user_principal
       attr_reader :auth_string, :remote_user, :query_string, :request_uri

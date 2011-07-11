@@ -21,8 +21,19 @@ java_import "org.eclipse.jgit.transport.ReceiveCommand"
 module Mutt
   module Gitorious
     class PreReceiveHook
-      attr_reader :pre_receive_guard
-      
+      attr_reader :pre_receive_guard, :repository_url, :user, :host
+
+      def initialize(options)
+        @repository_url = options[:repository_url]
+        @user = options[:user]
+        @host = options[:host]
+      end
+
+      def writable_by_query_url
+        local_uri = File.join(host, repository_url, "writable_by?username=#{user}")
+        "http://#{local_uri}"
+      end
+        
       def on_pre_receive(receive_pack, commands)
         commands.each do |cmd|
           handle_command(receive_pack, cmd)
@@ -33,7 +44,7 @@ module Mutt
         c = Command.new(cmd)
         guard = ::Gitorious::PreReceiveGuard.new(c, {
             :is_local => false,
-            :writable_by_url => "http://gitorious.here:3000/gitorioux/gitorioux/writable_by?username=mariuz",
+            :writable_by_url => writable_by_query_url,
             :deny_nonfastforward => true
           })
         

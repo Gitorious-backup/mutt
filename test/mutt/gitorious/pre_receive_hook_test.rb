@@ -52,14 +52,22 @@ class PreReceiveHookTest < MiniTest::Spec
       assert @jgit_command.non_fast_forward?
     end
   end
-
+  
   context "No access" do
 
     setup do
       @receive_pack = FakeReceivePack.new
-      @hook = Mutt::Gitorious::PreReceiveHook.new
+      @hook = Mutt::Gitorious::PreReceiveHook.new({
+          :repository_url => "/gitorious/mainline",
+          :user => "bill",
+          :host => "gitorious.here:3000"})
     end
     
+    should "provide writable_by_url for pre receive guard" do
+      assert_equal("http://gitorious.here:3000/gitorious/mainline/writable_by?username=bill",
+        @hook.writable_by_query_url)
+    end
+
     should "fail appropriately when merge request updates are denied" do
       command = JGitCommand.new
       command.ref_name = "refs/merge-requests/123"
