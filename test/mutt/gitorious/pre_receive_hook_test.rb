@@ -43,12 +43,12 @@ class PreReceiveHookTest < MiniTest::Spec
     end
 
     should "recognize deletions" do
-      @command.type = org.eclipse.jgit.transport.ReceiveCommand::Type::DELETE
+      @command.type = ReceiveCommand::Type::DELETE
       assert @jgit_command.action_delete?
     end
 
     should "recognize non-fast-forwards" do
-      @command.type = org.eclipse.jgit.transport.ReceiveCommand::Type::UPDATE_NONFASTFORWARD
+      @command.type = ReceiveCommand::Type::UPDATE_NONFASTFORWARD
       assert @jgit_command.non_fast_forward?
     end
   end
@@ -64,7 +64,7 @@ class PreReceiveHookTest < MiniTest::Spec
       command = JGitCommand.new
       command.ref_name = "refs/merge-requests/123"
       @hook.on_pre_receive(@receive_pack, [command])
-      assert_equal org.eclipse.jgit.transport.ReceiveCommand::Result::REJECTED_OTHER_REASON, command.result
+      assert_equal ReceiveCommand::Result::REJECTED_OTHER_REASON, command.result
       refute_nil @receive_pack.error
     end
 

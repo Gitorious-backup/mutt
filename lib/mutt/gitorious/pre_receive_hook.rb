@@ -16,6 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #++
 require "java"
+java_import "org.eclipse.jgit.transport.ReceiveCommand"
 
 module Mutt
   module Gitorious
@@ -39,7 +40,7 @@ module Mutt
         result = guard.result
         if result.allow?
         else
-          cmd.result = org.eclipse.jgit.transport.ReceiveCommand::Result::REJECTED_OTHER_REASON
+          cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
           receive_pack.send_error result.message
         end
       end
