@@ -28,11 +28,18 @@ module Mutt
       end
 
       def resolve_url(url)
+        configuration_for_url(url)[:path]
+      end
+
+      def configuration_for_url(url)
+        result = {}
         repo_url = url.split(".git").first
 
         service_request(repo_url, "config") do |data|
-          data.scan(/^real_path:(.*)$/).flatten.first
+          result[:path] = data.scan(/^real_path:(.*)$/).flatten.first
+          result[:force_pushing_denied] = data.scan(/^force_pushing_denied:(.*)$/).flatten.first == "true"
         end
+        result
       end
 
       def push_allowed_by?(user, repo_url)

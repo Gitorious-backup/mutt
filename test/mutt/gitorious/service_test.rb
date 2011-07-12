@@ -47,6 +47,27 @@ class GitoriousServiceTest < MiniTest::Spec
     end
   end
 
+  context "determine if force-push is allowed for a repository" do
+    should "be true if so determined" do
+      def @service.open(uri)
+        Mutt::Test::Response.new("real_path:whatever\nforce_pushing_denied:false")
+      end
+
+      result = @service.configuration_for_url("gitorious/mainline.git")
+      assert_equal false, result[:force_pushing_denied]
+    end
+
+    should "be false if so determined" do
+      def @service.open(uri)
+        Mutt::Test::Response.new("real_path:whatever\nforce_pushing_denied:true")
+      end
+
+      result = @service.configuration_for_url("gitorious/mainline.git")
+      assert_equal true, result[:force_pushing_denied]
+    end
+
+  end
+
   context "authorizing users for push" do
     setup do
       def @service.open(uri)

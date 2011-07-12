@@ -40,8 +40,8 @@ module Mutt
         end
       end
       
-      def handle_command(receive_pack, cmd)
-        c = Command.new(cmd)
+      def handle_command(receive_pack, command)
+        c = Command.new(command)
         guard = ::Gitorious::PreReceiveGuard.new(c, {
             :is_local => false,
             :writable_by_url => writable_by_query_url,
@@ -49,25 +49,27 @@ module Mutt
           })
         
         result = fetch_result(guard)
+        if result.allow?
+          command.result = ReceiveCommand::Result::OK
+        else
+          no_access(result, command, receive_pack)
+        end
+      end
+
+      def no_access(result, cmd, receive_pack)
         case result
-        when ::Gitorious::PreReceive::PushGranted
-          cmd.result = ReceiveCommand::Result::OK
         when ::Gitorious::PreReceive::MergeRequestUpdateDenied
           cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
-          receive_pack.send_error result.message
         when ::Gitorious::PreReceive::DeleteRefDenied
           cmd.result = ReceiveCommand::Result::REJECTED_NODELETE
-          receive_pack.send_error result.message
         when ::Gitorious::PreReceive::ForcePushDenied
           cmd.result = ReceiveCommand::Result::REJECTED_NONFASTFORWARD
-          receive_pack.send_error result.message
         when ::Gitorious::PreReceive::AccessDenied
           cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
-          receive_pack.send_error result.message
         when ::Gitorious::PreReceive::ServerDown
           cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
-          receive_pack.send_error result.message          
         end
+        receive_pack.send_error result.message
       end
 
       def fetch_result(guard)
