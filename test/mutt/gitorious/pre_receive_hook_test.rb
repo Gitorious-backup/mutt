@@ -53,7 +53,7 @@ class PreReceiveHookTest < MiniTest::Spec
     end
   end
   
-  context "No access" do
+  context "Access control" do
 
     setup do
       @receive_pack = FakeReceivePack.new
@@ -61,6 +61,7 @@ class PreReceiveHookTest < MiniTest::Spec
           :repository_url => "/gitorious/mainline",
           :user => "bill",
           :host => "gitorious.here:3000"})
+      @command = JGitCommand.new
     end
     
     should "provide writable_by_url for pre receive guard" do
@@ -69,28 +70,40 @@ class PreReceiveHookTest < MiniTest::Spec
     end
 
     should "fail appropriately when merge request updates are denied" do
-      command = JGitCommand.new
-      command.ref_name = "refs/merge-requests/123"
-      @hook.on_pre_receive(@receive_pack, [command])
-      assert_equal ReceiveCommand::Result::REJECTED_OTHER_REASON, command.result
-      refute_nil @receive_pack.error
+      def @hook.fetch_result(guard); Gitorious::PreReceive::MergeRequestUpdateDenied.new; end
+      @hook.on_pre_receive(@receive_pack, [@command])
+      assert_equal ReceiveCommand::Result::REJECTED_OTHER_REASON, @command.result
     end
 
     should "fail appropriately when deletion is denied" do
+      def @hook.fetch_result(guard); Gitorious::PreReceive::DeleteRefDenied.new; end
+      @hook.on_pre_receive(@receive_pack, [@command])
+      assert_equal ReceiveCommand::Result::REJECTED_NODELETE, @command.result
     end
 
     should "fail appropriately when force pushing is denied" do
+      def @hook.fetch_result(guard); Gitorious::PreReceive::ForcePushDenied.new; end
+      @hook.on_pre_receive(@receive_pack, [@command])
+      assert_equal ReceiveCommand::Result::REJECTED_NONFASTFORWARD, @command.result
     end
 
     should "fail appropriately when access denied" do
+      def @hook.fetch_result(guard); Gitorious::PreReceive::AccessDenied.new; end
+      @hook.on_pre_receive(@receive_pack, [@command])
+      assert_equal ReceiveCommand::Result::REJECTED_OTHER_REASON, @command.result
     end
 
     should "fail appropriately when server is down" do
+      def @hook.fetch_result(guard); Gitorious::PreReceive::ServerDown.new; end
+      @hook.on_pre_receive(@receive_pack, [@command])
+      assert_equal ReceiveCommand::Result::REJECTED_OTHER_REASON, @command.result
     end
-  end
 
-  context "Access" do
     should "silently accept authorized pushes" do
+      def @hook.fetch_result(guard); Gitorious::PreReceive::PushGranted.new; end
+      @hook.on_pre_receive(@receive_pack, [@command])
+      assert_equal ReceiveCommand::Result::OK, @command.result
+      assert_nil @receive_pack.error
     end
   end
 end

@@ -48,12 +48,30 @@ module Mutt
             :deny_nonfastforward => true
           })
         
-        result = guard.result
-        if result.allow?
-        else
+        result = fetch_result(guard)
+        case result
+        when ::Gitorious::PreReceive::PushGranted
+          cmd.result = ReceiveCommand::Result::OK
+        when ::Gitorious::PreReceive::MergeRequestUpdateDenied
           cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
           receive_pack.send_error result.message
+        when ::Gitorious::PreReceive::DeleteRefDenied
+          cmd.result = ReceiveCommand::Result::REJECTED_NODELETE
+          receive_pack.send_error result.message
+        when ::Gitorious::PreReceive::ForcePushDenied
+          cmd.result = ReceiveCommand::Result::REJECTED_NONFASTFORWARD
+          receive_pack.send_error result.message
+        when ::Gitorious::PreReceive::AccessDenied
+          cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
+          receive_pack.send_error result.message
+        when ::Gitorious::PreReceive::ServerDown
+          cmd.result = ReceiveCommand::Result::REJECTED_OTHER_REASON
+          receive_pack.send_error result.message          
         end
+      end
+
+      def fetch_result(guard)
+        guard.result
       end
     
       class Command
